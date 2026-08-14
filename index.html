@@ -1064,17 +1064,247 @@ function imgLoad(e){
   const rd=new FileReader();rd.onload=ev=>{const im=new Image();im.onload=()=>{window._img=im;document.getElementById('imgControls').classList.remove('hidden');imgCompress()};im.src=ev.target.result};rd.readAsDataURL(f);
 }
 function imgCompress(){
-  const img=window._img;if(!img)return;
-  const fmt=document.getElementById('imgFmt').value,q=+document.getElementById('imgQual').value/100,mw=+document.getElementById('imgMaxW').value;
-  let w=img.width,h=img.height;if(mw>0&&w>mw){h=Math.round(h*mw/w);w=mw}
-  const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');
-  if(fmt==='image/jpeg'){x.fillStyle='#fff';x.fillRect(0,0,w,h)}
+  const img=window._img;
+  if(!img)return;
+  const fmt=document.getElementById('imgFmt')?.value||'image/jpeg';
+  const q=(+document.getElementById('imgQual')?.value||80)/100;
+  const mw=+document.getElementById('imgMaxW')?.value||0;
+  let w=img.width,h=img.height;
+  if(mw>0&&w>mw){h=Math.round(h*mw/w);w=mw}
+  const c=document.createElement('canvas');
+  c.width=w;c.height=h;
+  const x=c.getContext('2d');
+  if(!x)return;
+  if(fmt==='image/jpeg'){
+    x.fillStyle='#fff';
+    x.fillRect(0,0,w,h);
+  }
   x.drawImage(img,0,0,w,h);
+  const outputType=fmt==='image/png'?'image/png':fmt==='image/webp'?'image/webp':'image/jpeg';
+  const quality=outputType==='image/png'?undefined:q;
   c.toBlob(b=>{
+    if(!b)return;
     if(imgBlobUrl)URL.revokeObjectURL(imgBlobUrl);
-    imgResultBlob=b;imgBlobUrl=URL.createObjectURL(b);
-    const saved=imgOrigSize-b.size,pct=imgOrigSize>0?(saved/imgOrigSize*100).toFixed(1):0;
-    document.getElementById('imgStats').innerHTML=`
-      <div class="card p-4"><div class="text-xs font-bold" style="color:var(--ph-muted)">Orihinal</div><div class="font-extrabold num">${fmtSize(imgOrigSize)}</div></div>
-      <div class="card p-4"><div class="text-xs font-bold" style="color:var(--ph-muted)">Compressed</div><div class="font-extrabold num">${fmtSize(b.size)}</div></div>
-      <div class="card p-4"><div class="text-xs font-bold" style="color:var(--ph-muted)">Nakatipid</div><div class="font-extrabold num" style="color:${saved>=0?'var(--ph-blue)':'var(--ph-red)'}">${saved>=0?'-':'+'}${Math.abs(p
+    imgResultBlob=b;
+    imgBlobUrl=URL.createObjectURL(b);
+    const saved=imgOrigSize-b.size;
+    const pct=imgOrigSize>0?(saved/imgOrigSize*100).toFixed(1):'0.0';
+    const stats=document.getElementById('imgStats');
+    if(stats){
+      stats.innerHTML=`
+        <div class="card p-4"><div class="text-xs font-bold" style="color:var(--ph-muted)">Orihinal</div><div class="font-extrabold num">${fmtSize(imgOrigSize)}</div></div>
+        <div class="card p-4"><div class="text-xs font-bold" style="color:var(--ph-muted)">Compressed</div><div class="font-extrabold num">${fmtSize(b.size)}</div></div>
+        <div class="card p-4"><div class="text-xs font-bold" style="color:var(--ph-muted)">Nakatipid</div><div class="font-extrabold num" style="color:${saved>=0?'var(--ph-blue)':'var(--ph-red)'}">${saved>=0?'-':'+'}${Math.abs(pct)}%</div></div>`;
+    }
+    const preview=document.getElementById('imgPreview');
+    if(preview){
+      preview.innerHTML=`<img src="${imgBlobUrl}" alt="Compressed preview" class="block w-full max-h-80 object-contain bg-white">`;
+    }
+  },outputType,quality);
+}
+function fmtSize(bytes){
+  if(!Number.isFinite(bytes)||bytes<0)return '0 B';
+  if(bytes<1024)return `${bytes} B`;
+  const units=['KB','MB','GB'];
+  let n=bytes/1024,i=0;
+  while(n>=1024&&i<units.length-1){n/=1024;i++;}
+  return `${n.toFixed(n>=100?0:n>=10?1:2)} ${units[i]}`;
+}
+function imgDownload(){
+  if(!imgResultBlob){toast('Please choose an image first');return;}
+  const fmt=document.getElementById('imgFmt')?.value||'image/jpeg';
+  const ext=fmt==='image/png'?'png':fmt==='image/webp'?'webp':'jpg';
+  const a=document.createElement('a');
+  a.href=imgBlobUrl||URL.createObjectURL(imgResultBlob);
+  a.download=`buhai-compressed.${ext}`;
+  document.body.appendChild(a);a.click();a.remove();
+  toast('Compressed image downloaded ✓');
+}
+
+/* ===== 5. BMI ===== */
+function renderBMI(r){
+  r.innerHTML=`<div class="space-y-5">
+    <div class="grid grid-cols-2 gap-3">
+      <label><div class="text-xs font-bold mb-2 uppercase tracking-wider" style="color:var(--ph-muted)">Height (cm)</div><input type="number" id="bmiHeight" min="50" max="300" value="170" oninput="bmiCalc()"></label>
+      <label><div class="text-xs font-bold mb-2 uppercase tracking-wider" style="color:var(--ph-muted)">Weight (kg)</div><input type="number" id="bmiWeight" min="10" max="500" value="65" oninput="bmiCalc()"></label>
+    </div>
+    <div id="bmiOut"></div>
+  </div>`;
+  bmiCalc();
+}
+function bmiCalc(){
+  const h=+(document.getElementById('bmiHeight')?.value||0)/100;
+  const w=+(document.getElementById('bmiWeight')?.value||0);
+  const out=document.getElementById('bmiOut');
+  if(!out||h<=0||w<=0){if(out)out.innerHTML='';return;}
+  const bmi=w/(h*h);
+  let category,color,advice;
+  if(bmi<18.5){category='Underweight';color='var(--ph-blue)';advice='Below the standard adult BMI range.';}
+  else if(bmi<25){category='Normal weight';color='#16a34a';advice='Within the standard adult BMI range.';}
+  else if(bmi<30){category='Overweight';color='#d97706';advice='Above the standard adult BMI range.';}
+  else{category='Obesity';color='var(--ph-red)';advice='In the obesity range by standard adult BMI categories.';}
+  out.innerHTML=`<div class="card p-6 text-center" style="background:linear-gradient(135deg,#fff,#F5F7FF)">
+    <div class="text-xs font-bold uppercase tracking-wider" style="color:var(--ph-muted)">Your BMI</div>
+    <div class="text-6xl font-extrabold num my-2" style="color:${color}">${bmi.toFixed(1)}</div>
+    <div class="font-extrabold text-lg" style="color:${color}">${category}</div>
+    <p class="text-sm mt-2" style="color:var(--ph-muted)">${advice}</p>
+    <div class="grid grid-cols-4 gap-1 mt-5 text-[10px] font-bold">
+      <div class="p-2 rounded-lg" style="background:#DBEAFE">&lt;18.5<br>Under</div>
+      <div class="p-2 rounded-lg" style="background:#DCFCE7">18.5–24.9<br>Normal</div>
+      <div class="p-2 rounded-lg" style="background:#FEF3C7">25–29.9<br>Over</div>
+      <div class="p-2 rounded-lg" style="background:#FEE2E2">30+<br>Obesity</div>
+    </div>
+  </div>`;
+}
+
+/* ===== 6. RESUME ===== */
+function renderResume(r){
+  r.innerHTML=`<div class="space-y-5">
+    <div class="grid md:grid-cols-2 gap-4">
+      <label><div class="text-xs font-bold mb-2 uppercase tracking-wider" style="color:var(--ph-muted)">Full name</div><input id="resName" placeholder="Juan Dela Cruz" oninput="resumeUpdate()"></label>
+      <label><div class="text-xs font-bold mb-2 uppercase tracking-wider" style="color:var(--ph-muted)">Job title</div><input id="resTitle" placeholder="Software Developer" oninput="resumeUpdate()"></label>
+      <label><div class="text-xs font-bold mb-2 uppercase tracking-wider" style="color:var(--ph-muted)">Email</div><input id="resEmail" type="email" placeholder="juan@email.com" oninput="resumeUpdate()"></label>
+      <label><div class="text-xs font-bold mb-2 uppercase tracking-wider" style="color:var(--ph-muted)">Phone</div><input id="resPhone" placeholder="+63 917 123 4567" oninput="resumeUpdate()"></label>
+    </div>
+    <label><div class="text-xs font-bold mb-2 uppercase tracking-wider" style="color:var(--ph-muted)">Professional summary</div><textarea id="resSummary" rows="3" placeholder="A short professional summary…" oninput="resumeUpdate()"></textarea></label>
+    <label><div class="text-xs font-bold mb-2 uppercase tracking-wider" style="color:var(--ph-muted)">Experience</div><textarea id="resExperience" rows="5" placeholder="Company — Role (2023–Present)\nDescribe your achievements…" oninput="resumeUpdate()"></textarea></label>
+    <label><div class="text-xs font-bold mb-2 uppercase tracking-wider" style="color:var(--ph-muted)">Education</div><textarea id="resEducation" rows="3" placeholder="University — Degree (2020–2024)" oninput="resumeUpdate()"></textarea></label>
+    <label><div class="text-xs font-bold mb-2 uppercase tracking-wider" style="color:var(--ph-muted)">Skills</div><input id="resSkills" placeholder="JavaScript, HTML, CSS, Communication" oninput="resumeUpdate()"></label>
+    <div class="flex gap-3"><button onclick="resumePrint()" class="btn-primary flex-1 py-3 rounded-xl font-bold">🖨 Print / Save PDF</button><button onclick="resumeClear()" class="btn-ghost px-5 py-3 rounded-xl font-bold">Reset</button></div>
+    <div id="resumePreview" class="rounded-2xl p-6 bg-white" style="border:1px solid var(--border)"></div>
+  </div>`;
+  resumeUpdate();
+}
+function escHtml(v){
+  return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+}
+function linesToHtml(v){
+  return escHtml(v).replace(/\n/g,'<br>');
+}
+function resumeUpdate(){
+  const get=id=>document.getElementById(id)?.value||'';
+  const name=get('resName')||'Your Name';
+  const title=get('resTitle')||'Professional Title';
+  const email=get('resEmail'),phone=get('resPhone');
+  const summary=get('resSummary'),experience=get('resExperience'),education=get('resEducation'),skills=get('resSkills');
+  const preview=document.getElementById('resumePreview');
+  if(!preview)return;
+  preview.innerHTML=`<div style="max-width:760px;margin:auto;color:var(--ph-dark)">
+    <div style="border-bottom:4px solid var(--ph-blue);padding-bottom:18px;margin-bottom:20px">
+      <h2 style="font-size:30px;font-weight:800;margin:0">${escHtml(name)}</h2>
+      <div style="font-size:15px;font-weight:600;color:var(--ph-red);margin-top:4px">${escHtml(title)}</div>
+      <div style="font-size:12px;color:var(--ph-muted);margin-top:8px">${[email,phone].filter(Boolean).map(escHtml).join(' · ')}</div>
+    </div>
+    ${summary?`<section style="margin-bottom:18px"><h3 style="font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--ph-blue);margin-bottom:7px">Profile</h3><p style="font-size:13px;line-height:1.7;margin:0">${linesToHtml(summary)}</p></section>`:''}
+    ${experience?`<section style="margin-bottom:18px"><h3 style="font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--ph-blue);margin-bottom:7px">Experience</h3><p style="font-size:13px;line-height:1.7;margin:0">${linesToHtml(experience)}</p></section>`:''}
+    ${education?`<section style="margin-bottom:18px"><h3 style="font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--ph-blue);margin-bottom:7px">Education</h3><p style="font-size:13px;line-height:1.7;margin:0">${linesToHtml(education)}</p></section>`:''}
+    ${skills?`<section><h3 style="font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--ph-blue);margin-bottom:7px">Skills</h3><p style="font-size:13px;line-height:1.7;margin:0">${escHtml(skills)}</p></section>`:''}
+  </div>`;
+}
+function resumePrint(){
+  const preview=document.getElementById('resumePreview');
+  if(!preview)return;
+  const win=window.open('','_blank','width=900,height=900');
+  if(!win){toast('Please allow pop-ups to print your resume');return;}
+  win.document.write(`<!doctype html><html><head><title>BuhAI Resume</title><style>body{font-family:Arial,sans-serif;padding:40px;color:#111}*{box-sizing:border-box}@media print{body{padding:0}}</style></head><body>${preview.innerHTML}</body></html>`);
+  win.document.close();
+  win.focus();
+  setTimeout(()=>win.print(),250);
+}
+function resumeClear(){
+  ['resName','resTitle','resEmail','resPhone','resSummary','resExperience','resEducation','resSkills'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  resumeUpdate();
+}
+
+/* ===== 7. WORD COUNTER ===== */
+function renderWord(r){
+  r.innerHTML=`<div class="space-y-5">
+    <textarea id="wordText" rows="10" placeholder="I-type o i-paste ang iyong text dito…" oninput="wordUpdate()"></textarea>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="wordStats"></div>
+  </div>`;
+  wordUpdate();
+}
+function wordUpdate(){
+  const text=document.getElementById('wordText')?.value||'';
+  const words=text.trim()?text.trim().split(/\s+/).length:0;
+  const chars=text.length;
+  const noSpaces=text.replace(/\s/g,'').length;
+  const sentences=text.trim()?text.split(/[.!?]+/).filter(s=>s.trim()).length:0;
+  const reading=Math.max(0,Math.ceil(words/200));
+  const out=document.getElementById('wordStats');
+  if(!out)return;
+  const card=(label,value)=>`<div class="card p-4"><div class="text-xs font-bold" style="color:var(--ph-muted)">${label}</div><div class="text-2xl font-extrabold num mt-1" style="color:var(--ph-blue)">${value.toLocaleString()}</div></div>`;
+  out.innerHTML=card('Words',words)+card('Characters',chars)+card('No spaces',noSpaces)+card('Reading time',`${reading} min`);
+}
+
+/* ===== 8. PERCENTAGE ===== */
+function renderPct(r){
+  r.innerHTML=`<div class="space-y-5">
+    <label><div class="text-xs font-bold mb-2 uppercase tracking-wider" style="color:var(--ph-muted)">Calculation</div>
+      <select id="pctMode" onchange="pctUpdate()">
+        <option value="of">What is X% of Y?</option>
+        <option value="is">X is what percent of Y?</option>
+        <option value="change">Percentage increase / decrease</option>
+      </select>
+    </label>
+    <div class="grid grid-cols-2 gap-3">
+      <label><div id="pctLabelA" class="text-xs font-bold mb-2 uppercase tracking-wider" style="color:var(--ph-muted)">X (%)</div><input type="number" id="pctA" value="20" oninput="pctUpdate()"></label>
+      <label><div id="pctLabelB" class="text-xs font-bold mb-2 uppercase tracking-wider" style="color:var(--ph-muted)">Y</div><input type="number" id="pctB" value="500" oninput="pctUpdate()"></label>
+    </div>
+    <div id="pctExtra" class="hidden"><label><div class="text-xs font-bold mb-2 uppercase tracking-wider" style="color:var(--ph-muted)">New value</div><input type="number" id="pctC" value="600" oninput="pctUpdate()"></label></div>
+    <div id="pctOut"></div>
+  </div>`;
+  pctUpdate();
+}
+function pctUpdate(){
+  const mode=document.getElementById('pctMode')?.value||'of';
+  const a=+(document.getElementById('pctA')?.value||0);
+  const b=+(document.getElementById('pctB')?.value||0);
+  const c=+(document.getElementById('pctC')?.value||0);
+  const extra=document.getElementById('pctExtra');
+  const la=document.getElementById('pctLabelA'),lb=document.getElementById('pctLabelB');
+  const out=document.getElementById('pctOut');
+  if(!out)return;
+  let result=0,text='';
+  if(mode==='of'){
+    if(la)la.textContent='X (%)'; if(lb)lb.textContent='Y'; if(extra)extra.classList.add('hidden');
+    result=a*b/100; text=`${a}% of ${b} = ${result.toLocaleString(undefined,{maximumFractionDigits:4})}`;
+  }else if(mode==='is'){
+    if(la)la.textContent='X'; if(lb)lb.textContent='Y'; if(extra)extra.classList.add('hidden');
+    result=b===0?NaN:a/b*100; text=b===0?'Y cannot be zero':`${a} is ${result.toLocaleString(undefined,{maximumFractionDigits:4})}% of ${b}`;
+  }else{
+    if(la)la.textContent='Original value'; if(lb)lb.textContent='New value'; if(extra)extra.classList.add('hidden');
+    result=b===0?NaN:(c-b)/b*100;
+    text=b===0?'Original value cannot be zero':`${b} → ${c}: ${result>=0?'+':''}${result.toLocaleString(undefined,{maximumFractionDigits:4})}%`;
+  }
+  out.innerHTML=`<div class="card p-6 text-center" style="background:linear-gradient(135deg,#F5F7FF,#fff)"><div class="text-xs font-bold uppercase tracking-wider" style="color:var(--ph-muted)">Result</div><div class="text-3xl md:text-4xl font-extrabold num mt-2" style="color:var(--ph-blue)">${text}</div></div>`;
+}
+
+/* ===== MODAL SAFETY ===== */
+function openTool(k){
+  const t=tools[k];
+  if(!t){console.error('Unknown tool:',k);return;}
+  const title=document.getElementById('toolModalTitle');
+  const icon=document.getElementById('toolModalIcon');
+  const body=document.getElementById('toolModalBody');
+  const backdrop=document.getElementById('modalBackdrop');
+  if(!title||!icon||!body||!backdrop){console.error('Tool modal elements are missing');return;}
+  title.textContent=t.title;
+  icon.innerHTML=t.icon;
+  icon.style.background=t.bg||'rgba(0,56,168,.08)';
+  icon.style.color=t.color||'var(--ph-blue)';
+  body.innerHTML='';
+  try{t.render(body);}catch(err){console.error(`Failed to render ${k}:`,err);body.innerHTML='<div class="card p-5" style="color:var(--ph-red)">Sorry, this tool could not be loaded. Please refresh the page and try again.</div>';}
+  backdrop.classList.add('active');
+  document.body.style.overflow='hidden';
+}
+function closeTool(){
+  const backdrop=document.getElementById('modalBackdrop');
+  if(backdrop)backdrop.classList.remove('active');
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeTool();});
+
+</script>
+</body>
+</html>
