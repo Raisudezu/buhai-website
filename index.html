@@ -1,333 +1,253 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BuhAI — Filipino Tools</title>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
-<style>
-*{box-sizing:border-box}
-html,body{margin:0;padding:0;background:#F7F9FF;color:#111827;font-family:'Sora',sans-serif;line-height:1.6}
-::selection{background:#FCD116;color:#0A1F44}
-.page{display:none}.page.on{display:block;animation:in .4s ease}
-@keyframes in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-.nav{color:#0A1F44;font-weight:700;font-size:14px;padding:8px 2px;text-decoration:none;position:relative;cursor:pointer}
-.nav:hover{color:#CE1126}
-.nav::after{content:'';position:absolute;bottom:-2px;left:0;width:0;height:2.5px;background:#CE1126;transition:.3s;border-radius:2px}
-.nav:hover::after,.nav.on::after{width:100%}
-.nav.on{color:#0038A8}
-.btn{display:inline-flex;align-items:center;gap:6px;border:none;cursor:pointer;border-radius:14px;padding:11px 20px;font-family:inherit;font-weight:800;font-size:14px;transition:.2s;text-decoration:none}
-.bb{background:linear-gradient(135deg,#0038A8,#0B4ED1);color:#fff;box-shadow:0 10px 30px -12px rgba(0,56,168,.22)}.bb:hover{transform:translateY(-2px)}
-.br{background:linear-gradient(135deg,#CE1126,#E01A31);color:#fff}.br:hover{transform:translateY(-2px)}
-.by{background:#FCD116;color:#0A1F44}.by:hover{transform:translateY(-2px)}
-.bo{background:transparent;border:1.5px solid rgba(0,56,168,.2);color:#0A1F44}.bo:hover{border-color:#0038A8;color:#0038A8}
-.wrap{max-width:1160px;margin:0 auto;padding:0 22px}
-.card{background:#fff;border:1px solid rgba(0,56,168,.1);border-radius:18px;box-shadow:0 10px 30px -12px rgba(0,56,168,.22);transition:.3s;padding:22px}
-.card:hover{transform:translateY(-3px);border-color:#FCD116}
-.hero{border-radius:22px;padding:48px 40px;display:grid;grid-template-columns:1.2fr 1fr;gap:40px;align-items:center;margin-bottom:44px;min-height:240px;overflow:hidden}
-.hero svg{width:100%;max-width:280px;justify-self:center;height:auto}
-.hero h1{font-size:clamp(26px,4vw,44px);font-weight:800;line-height:1.08;letter-spacing:-.02em;margin:8px 0 14px}
-.hero p{font-size:16px;line-height:1.7;max-width:520px;margin:0 0 22px;opacity:.92}
-.eb{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#CE1126;font-weight:800;margin:0}
-@media(max-width:820px){.hero{grid-template-columns:1fr;padding:32px 24px;text-align:center}.hero svg{max-width:180px;order:-1}}
-.g2,.g3,.g4{display:grid;gap:16px}
-.g2{grid-template-columns:repeat(2,1fr)}
-.g3{grid-template-columns:repeat(3,1fr)}
-.g4{grid-template-columns:repeat(4,1fr)}
-@media(max-width:980px){.g4{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:580px){.g4,.g3,.g2{grid-template-columns:1fr}}
-.tl{cursor:pointer;display:flex;flex-direction:column;gap:8px}
-.th{display:flex;justify-content:space-between;align-items:flex-start}
-.ti{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:rgba(0,56,168,.08);color:#0038A8;transition:.3s;font-size:20px}
-.tl:hover .ti{background:linear-gradient(135deg,#FCD116,#FDE68A);transform:scale(1.08) rotate(-4deg)}
-.tn{font-size:12px;font-weight:800;color:#64748B}
-.tl h3{font-size:16px;font-weight:800;margin:0;color:#0A1F44}
-.tl p{font-size:13px;color:#64748B;margin:0;flex:1}
-.tcta{font-size:12px;font-weight:800;color:#0038A8;margin-top:4px}
-input,select,textarea{width:100%;background:#fff;border:1.5px solid rgba(0,56,168,.1);color:#111827;border-radius:10px;padding:10px 12px;font-family:inherit;font-size:14px;transition:.2s;outline:none}
-input:focus,select:focus,textarea:focus{border-color:#0038A8;box-shadow:0 0 0 4px rgba(0,56,168,.1)}
-label{display:block;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#64748B;margin-bottom:6px}
-.fd{margin-bottom:14px}
-.mb{position:fixed;inset:0;background:rgba(10,31,68,.65);backdrop-filter:blur(6px);z-index:500;display:none;align-items:center;justify-content:center;padding:16px}
-.mb.on{display:flex}
-.md{background:#fff;border-radius:18px;width:100%;max-width:620px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 40px 100px -20px #000}
-.mh{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid rgba(0,56,168,.1);background:linear-gradient(90deg,rgba(0,56,168,.05),rgba(206,17,38,.04))}
-.mh h3{margin:0;font-size:17px;font-weight:800;color:#0A1F44}
-.mi{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:rgba(0,56,168,.08);color:#0038A8;font-size:18px}
-.mbody{padding:20px;overflow-y:auto}
-.fbar{height:4px;border-radius:3px;background:linear-gradient(90deg,#0038A8 33%,#FCD116 33%,#FCD116 66%,#CE1126 66%)}
-.gt{background:linear-gradient(100deg,#0038A8,#CE1126 70%);-webkit-background-clip:text;background-clip:text;color:transparent}
-.tg{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;font-size:10px;font-weight:800}
-.tc{text-align:center}.mt{margin-top:24px}.mb2{margin-bottom:20px}
-@keyframes sn{to{transform:rotate(360deg)}}@keyframes ft{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-.sn{transform-origin:center;animation:sn 30s linear infinite}.ft{animation:ft 5s ease-in-out infinite}
-footer{background:linear-gradient(180deg,#0A1F44,#050E26);color:#fff;padding:60px 0 28px;margin-top:40px}
-footer a{color:rgba(255,255,255,.75);text-decoration:none;font-size:13px;cursor:pointer}
-footer a:hover{color:#FCD116}
-.fg{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:32px;padding:24px 0}
-@media(max-width:820px){.fg{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:520px){.fg{grid-template-columns:1fr}}
-.hidden{display:none !important}.w100{width:100%}
-.resbox{padding:14px;border-radius:10px;background:#EFF6FF;border:1px solid rgba(0,56,168,.15);margin-top:10px;font-weight:700;color:#0038A8}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Clean, responsive data dashboard built with vanilla HTML, Tailwind CSS, and ECharts.">
+  <title>Data Dashboard</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Libraries -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+
+  <!-- Theme & Styles -->
+  <script>
+    (function () {
+      const s = document.createElement('style');
+      s.textContent = `
+        :root {
+          --bg: #f8fafb;
+          --card: #ffffff;
+          --text: #0f172a;
+          --muted: #64748b;
+          --accent: #2d7eb5;
+          --accent-soft: rgba(45, 126, 181, 0.14);
+          --accent2: #c85a3a;
+          --accent2-soft: rgba(200, 90, 58, 0.14);
+          --border: rgba(15, 23, 42, 0.08);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+          margin: 0;
+          font-family: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+          background: var(--bg);
+          color: var(--text);
+          -webkit-font-smoothing: antialiased;
+          overflow-wrap: break-word;
+        }
+
+        .reveal {
+          opacity: 0;
+          transform: translateY(20px);
+          animation: fadeUp 0.6s ease forwards;
+        }
+        .reveal:nth-child(2) { animation-delay: 0.1s; }
+        .reveal:nth-child(3) { animation-delay: 0.2s; }
+        .reveal:nth-child(4) { animation-delay: 0.3s; }
+        .reveal:nth-child(5) { animation-delay: 0.4s; }
+
+        @keyframes fadeUp {
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        .metric-card {
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .metric-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        .tbl-row { transition: background 0.15s ease; }
+        .tbl-row:hover { background: rgba(128, 128, 128, 0.06); }
+      `;
+      document.head.appendChild(s);
+    })();
+  </script>
 </head>
 <body>
+  <div class="max-w-5xl mx-auto px-6 py-12">
 
-<header style="position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,.92);backdrop-filter:blur(14px);border-bottom:1px solid rgba(0,56,168,.1)">
-  <div class="wrap" style="display:flex;align-items:center;justify-content:space-between;padding:14px 22px">
-    <a class="nav" data-go="home" style="display:flex;align-items:center;gap:10px;text-decoration:none;padding:0">
-      <div style="width:38px;height:38px;border-radius:10px;position:relative;overflow:hidden;box-shadow:0 4px 10px rgba(0,56,168,.3)">
-        <div style="position:absolute;inset:0;background:linear-gradient(180deg,#0038A8 50%,#CE1126 50%)"></div>
-        <svg viewBox="0 0 40 40" style="position:absolute;inset:0;width:100%;height:100%"><circle cx="20" cy="20" r="6.5" fill="#FCD116"/></svg>
+    <!-- HERO -->
+    <header class="reveal mb-14">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-11 h-11 rounded-xl flex items-center justify-center" style="background: var(--accent-soft); color: var(--accent);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/>
+          </svg>
+        </div>
+        <div>
+          <p class="text-xs tracking-[0.2em] uppercase" style="color: var(--muted); font-family: ui-monospace, monospace;">
+            Quarterly Report
+          </p>
+          <h1 class="text-3xl sm:text-4xl font-bold tracking-tight leading-tight">
+            2026 Performance Overview
+          </h1>
+        </div>
       </div>
-      <span style="font-weight:800;font-size:18px;color:#0A1F44">Buh<span style="color:#CE1126">AI</span></span>
-    </a>
-    <nav class="hidden lg:flex" style="gap:22px;align-items:center">
-      <a class="nav" data-go="home">Home</a>
-      <a class="nav" data-go="tools">Tools</a>
-      <a class="nav" data-go="ai">AI</a>
-      <a class="nav" data-go="guides">Guides</a>
-      <a class="nav" data-go="about">About</a>
-      <a class="nav" data-go="contact">Contact</a>
-      <a class="nav" data-go="privacy">Privacy</a>
-    </nav>
-    <div style="display:flex;gap:8px;align-items:center">
-      <button class="btn bb hidden sm:inline-flex" data-go="tools" style="padding:9px 16px;font-size:13px">Use Tools →</button>
-      <button class="btn bo lg:hidden" style="padding:7px 10px" id="mmBtn">☰</button>
-    </div>
+      <p class="text-base max-w-2xl" style="color: var(--muted);">
+        A clean, responsive summary of key metrics, trends, and breakdowns. Built with zero build tools — open the file in any browser.
+      </p>
+    </header>
+
+    <!-- METRIC CARDS -->
+    <section class="reveal flex flex-wrap gap-4 mb-14">
+      <!-- Card 1 -->
+      <article class="metric-card flex-1 min-w-[200px] rounded-2xl p-5 border"
+               style="background: var(--card); border-color: var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: var(--accent-soft); color: var(--accent);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M23 6l-9.5 9.5-5-5L1 18"/><path d="M17 6h6v6"/>
+            </svg>
+          </div>
+          <span class="text-xs uppercase tracking-wide font-medium" style="color: var(--muted);">Revenue</span>
+        </div>
+        <div class="text-3xl font-bold">$1.63M</div>
+        <div class="text-xs mt-1 font-medium text-emerald-600">▲ +12.3% vs last quarter</div>
+      </article>
+
+      <!-- Card 2 -->
+      <article class="metric-card flex-1 min-w-[200px] rounded-2xl p-5 border"
+               style="background: var(--card); border-color: var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: var(--accent-soft); color: var(--accent);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+          <span class="text-xs uppercase tracking-wide font-medium" style="color: var(--muted);">Active Users</span>
+        </div>
+        <div class="text-3xl font-bold">28,491</div>
+        <div class="text-xs mt-1 font-medium text-emerald-600">▲ +5.7%</div>
+      </article>
+
+      <!-- Card 3 -->
+      <article class="metric-card flex-1 min-w-[200px] rounded-2xl p-5 border"
+               style="background: var(--card); border-color: var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: var(--accent-soft); color: var(--accent);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+            </svg>
+          </div>
+          <span class="text-xs uppercase tracking-wide font-medium" style="color: var(--muted);">Avg. Response</span>
+        </div>
+        <div class="text-3xl font-bold">1.42s</div>
+        <div class="text-xs mt-1 font-medium text-rose-600">▼ −2.1% slower</div>
+      </article>
+    </section>
+
+    <!-- CHART -->
+    <section class="reveal rounded-2xl p-6 sm:p-8 mb-8 border"
+             style="background: var(--card); border-color: var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
+      <h2 class="text-xl font-semibold mb-6">Quarterly Revenue Trend</h2>
+      <div id="chart-revenue" style="height: 380px; width: 100%;"></div>
+    </section>
+
+    <!-- TABLE -->
+    <section class="reveal rounded-2xl p-6 sm:p-8 mb-8 border overflow-x-auto"
+             style="background: var(--card); border-color: var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
+      <h2 class="text-xl font-semibold mb-6">Top Regions</h2>
+      <table class="w-full text-sm min-w-[500px]">
+        <thead>
+          <tr class="text-xs uppercase tracking-wide border-b" style="color: var(--muted); border-color: var(--border);">
+            <th class="text-left pb-3 font-medium">Region</th>
+            <th class="text-left pb-3 font-medium">Revenue</th>
+            <th class="text-left pb-3 font-medium">Growth</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="tbl-row border-b" style="border-color: var(--border);">
+            <td class="py-3.5 font-medium">Asia Pacific</td><td>$612,400</td>
+            <td class="text-emerald-600 font-medium">▲ 18.2%</td>
+          </tr>
+          <tr class="tbl-row border-b" style="border-color: var(--border);">
+            <td class="py-3.5 font-medium">North America</td><td>$548,900</td>
+            <td class="text-emerald-600 font-medium">▲ 9.4%</td>
+          </tr>
+          <tr class="tbl-row border-b" style="border-color: var(--border);">
+            <td class="py-3.5 font-medium">Europe</td><td>$341,200</td>
+            <td class="text-rose-600 font-medium">▼ 3.1%</td>
+          </tr>
+          <tr class="tbl-row">
+            <td class="py-3.5 font-medium">Latin America</td><td>$127,500</td>
+            <td class="text-emerald-600 font-medium">▲ 22.4%</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="mt-16 pt-6 text-center text-xs" style="border-top: 1px solid var(--border); color: var(--muted);">
+      Data as of August 2026 · Built with vanilla HTML + Tailwind + ECharts
+    </footer>
   </div>
-  <div id="mm" class="hidden lg:hidden" style="padding:0 22px 14px;border-top:1px solid rgba(0,56,168,.1)">
-    <a class="nav" style="display:block;padding:10px 0;border-bottom:1px solid rgba(0,56,168,.1)" data-go="home">🏠 Home</a>
-    <a class="nav" style="display:block;padding:10px 0;border-bottom:1px solid rgba(0,56,168,.1)" data-go="tools">🛠️ Tools</a>
-    <a class="nav" style="display:block;padding:10px 0;border-bottom:1px solid rgba(0,56,168,.1)" data-go="ai">🤖 AI</a>
-    <a class="nav" style="display:block;padding:10px 0;border-bottom:1px solid rgba(0,56,168,.1)" data-go="guides">📚 Guides</a>
-    <a class="nav" style="display:block;padding:10px 0;border-bottom:1px solid rgba(0,56,168,.1)" data-go="about">ℹ️ About</a>
-    <a class="nav" style="display:block;padding:10px 0;border-bottom:1px solid rgba(0,56,168,.1)" data-go="contact">✉️ Contact</a>
-    <a class="nav" style="display:block;padding:10px 0" data-go="privacy">🔒 Privacy</a>
-  </div>
-</header>
 
-<main style="padding-top:88px">
+  <!-- Chart Init -->
+  <script>
+    (function initChart(n = 0) {
+      const el = document.getElementById('chart-revenue');
+      if (!el) return;
 
-<!-- HOME -->
-<section id="p-home" class="page on">
-<div class="wrap" style="padding-top:20px">
-  <div class="hero" style="background:linear-gradient(135deg,#0038A8 0%,#0B4ED1 50%,#CE1126 100%);color:#fff">
-    <div>
-      <p class="eb" style="color:#FCD116">FREE · FAST · PRIVATE · MADE IN PH</p>
-      <h1>Everyday tools,<br><span style="color:#FCD116">made simpler.</span></h1>
-      <p style="color:rgba(255,255,255,.9)">Free online tools, AI resources, and guides built for Filipinos.</p>
-      <div style="display:flex;flex-wrap:wrap;gap:10px">
-        <button class="btn by" data-go="tools">Explore Tools →</button>
-        <button class="btn" data-go="ai" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3)">AI Resources ★</button>
-      </div>
-    </div>
-    <svg viewBox="0 0 280 280" class="ft"><circle cx="140" cy="140" r="38" fill="#FCD116" class="sn"/></svg>
-  </div>
-  <div class="g4 mb2" id="homeStats"></div>
-  <h2 style="font-size:24px;font-weight:800;margin:40px 0 4px;color:#0A1F44" class="tc">Mga sikat na tools</h2>
-  <p class="tc" style="color:#64748B;margin:0 0 22px">Lahat libre — walang signup</p>
-  <div class="g4" id="homeTools"></div>
-  <div class="tc mt"><button class="btn br" data-go="tools">View All 8 Tools →</button></div>
-</div>
-</section>
+      if (typeof echarts === 'undefined') {
+        if (n < 40) { setTimeout(() => initChart(n + 1), 250); return; }
+        el.textContent = 'Chart library failed to load.';
+        return;
+      }
 
-<!-- TOOLS -->
-<section id="p-tools" class="page">
-<div class="wrap" style="padding-top:20px">
-  <div class="hero" style="background:linear-gradient(135deg,#EFF6FF,#FEF2F2);border:1px solid rgba(0,56,168,.1)">
-    <div><p class="eb">ALL TOOLS · 8 TOTAL</p><h1>Every tool you need,<br><span class="gt">zero bloat.</span></h1><p style="color:#64748B">Click any card to open. All run locally in your browser.</p></div>
-    <svg viewBox="0 0 280 240" class="ft"><rect x="35" y="75" width="210" height="130" rx="12" fill="#0038A8"/><rect x="35" y="75" width="210" height="30" rx="12" fill="#CE1126"/><rect x="120" y="62" width="40" height="26" rx="5" fill="#FCD116"/></svg>
-  </div>
-  <div class="g4" id="allTools"></div>
-</div>
-</section>
+      const chart = echarts.init(el);
+      const st = getComputedStyle(document.documentElement);
+      const accent = st.getPropertyValue('--accent').trim() || '#2d7eb5';
+      const muted = st.getPropertyValue('--muted').trim() || '#64748b';
+      const card = st.getPropertyValue('--card').trim() || '#ffffff';
+      const text = st.getPropertyValue('--text').trim() || '#0f172a';
+      const border = st.getPropertyValue('--border').trim() || 'rgba(15,23,42,0.08)';
 
-<!-- AI -->
-<section id="p-ai" class="page" style="background:linear-gradient(180deg,#FEF9C3 0%,#F7F9FF 35%)">
-<div class="wrap" style="padding-top:20px">
-  <div class="hero" style="background:linear-gradient(135deg,#FEF9C3,#FEF3C7);border:1.5px solid #FCD116">
-    <div><p class="eb">AI RESOURCES</p><h1>Use AI with<br><span style="color:#0038A8">clarity & confidence.</span></h1><p style="color:#0A1F44">Practical guides for students, OFWs, freelancers, small business.</p></div>
-    <svg viewBox="0 0 280 260" class="ft"><circle cx="140" cy="130" r="75" fill="#0038A8"/><circle cx="140" cy="130" r="14" fill="#FCD116"/></svg>
-  </div>
-  <div class="g3" id="aiCards"></div>
-</div>
-</section>
+      const gradient = {
+        type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+        colorStops: [
+          { offset: 0, color: accent },
+          { offset: 1, color: accent + '4d' }
+        ]
+      };
 
-<!-- GUIDES -->
-<section id="p-guides" class="page" style="background:#fff">
-<div class="wrap" style="padding-top:20px">
-  <div class="hero" style="background:linear-gradient(135deg,#F0FDF4,#EFF6FF);border:1px solid rgba(0,56,168,.1)">
-    <div><p class="eb">MGA GABAY</p><h1>Learn by doing<br><span class="gt">real Pinoy tasks.</span></h1><p style="color:#64748B">Each guide pairs a tool with a real problem Filipinos face.</p></div>
-    <svg viewBox="0 0 280 240" class="ft"><circle cx="230" cy="45" r="20" fill="#FCD116" class="sn"/><path d="M50 170 Q140 90 230 170" stroke="#0038A8" stroke-width="5" fill="none"/></svg>
-  </div>
-  <div class="g2" id="guideCards"></div>
-</div>
-</section>
+      chart.setOption({
+        backgroundColor: 'transparent',
+        tooltip: {
+          trigger: 'axis',
+          backgroundColor: card,
+          borderColor: border,
+          textStyle: { color: text }
+        },
+        grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+        xAxis: {
+          type: 'category',
+          data: ['Q1', 'Q2', 'Q3', 'Q4'],
+          axisLabel: { color: muted },
+          axisTick: { show: false }
+        },
+        yAxis: {
+          type: 'value',
+          axisLabel: { color: muted, formatter: '${value}' },
+          splitLine: { lineStyle: { color: border } }
+        },
+        series: [{
+          type: 'bar',
+          data: [320000, 410000, 380000, 520000],
+          itemStyle: { borderRadius: [6, 6, 0, 0], color: gradient },
+          barMaxWidth: 60
+        }]
+      });
 
-<!-- ABOUT -->
-<section id="p-about" class="page" style="background:linear-gradient(180deg,#EFF6FF 0%,#F7F9FF 40%)">
-<div class="wrap" style="padding-top:20px">
-  <div class="hero" style="background:linear-gradient(135deg,#0038A8,#0B4ED1);color:#fff">
-    <div><p class="eb" style="color:#FCD116">ANG KWENTO NG BUHAI</p><h1>Useful first.<br><span style="color:#FCD116">Always.</span></h1><p style="color:rgba(255,255,255,.9)">Tools that respect your time and privacy — made in Metro Manila.</p></div>
-    <svg viewBox="0 0 280 240" class="ft"><circle cx="140" cy="90" r="50" fill="#FCD116" class="sn"/></svg>
-  </div>
-  <div class="g3 mb2" id="aboutCards"></div>
-  <div class="card" style="max-width:800px;margin:0 auto;text-align:center;padding:36px;background:linear-gradient(135deg,#FEF2F2,#EFF6FF)">
-    <p class="eb mb2">ANG SIMULA · 2025</p>
-    <p style="font-size:15px;line-height:1.8;color:#0A1F44;margin:0">Nagsimula ang BuhAI bilang maliit na koleksyon ng tools para tulungan ang mga kamag-anak sa probinsya. Ngayon, ginagamit na ito sa buong Pilipinas — pero nananatili ang prinsipyo: <strong style="color:#CE1126">ang teknolohiya ay dapat simple, tapat, at para sa lahat.</strong></p>
-  </div>
-</div>
-</section>
-
-<!-- CONTACT -->
-<section id="p-contact" class="page" style="background:#fff">
-<div class="wrap" style="padding-top:20px">
-  <div class="hero" style="background:linear-gradient(135deg,#FEF2F2,#fff);border:1.5px solid rgba(206,17,38,.2)">
-    <div><p class="eb">MAKIPAG-UGNAYAN</p><h1>We'd love to<br><span style="color:#CE1126">hear from you.</span></h1><p style="color:#64748B">Bug report? Tool request? Sumulat ka.</p></div>
-    <svg viewBox="0 0 280 220" class="ft"><rect x="25" y="65" width="230" height="130" rx="12" fill="#0038A8"/><path d="M25 65 L140 150 L255 65" stroke="#FCD116" stroke-width="4" fill="none"/></svg>
-  </div>
-  <div class="g2">
-    <div class="card">
-      <h2 style="font-size:20px;font-weight:800;margin:0 0 16px;color:#0A1F44">Send a message</h2>
-      <form id="cForm">
-        <div class="g2"><div class="fd"><label>Name</label><input required placeholder="Juan Dela Cruz"></div><div class="fd"><label>Email</label><input required type="email" placeholder="juan@email.ph"></div></div>
-        <div class="fd"><label>Topic</label><select><option>Feedback</option><option>Tool request</option><option>Bug</option><option>Partnership</option></select></div>
-        <div class="fd"><label>Message</label><textarea rows="5" required placeholder="Kumusta!"></textarea></div>
-        <button class="btn br w100" type="submit">Send Message →</button>
-      </form>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:12px">
-      <div class="card"><div class="mi" style="margin-bottom:8px">✉</div><h4 style="margin:0 0 3px">Email</h4><p style="font-size:13px;color:#64748B;margin:0">hello@buhai.vercel.app</p></div>
-      <div class="card"><div class="mi" style="margin-bottom:8px">📍</div><h4 style="margin:0 0 3px">Based in</h4><p style="font-size:13px;color:#64748B;margin:0">Metro Manila, Philippines</p></div>
-    </div>
-  </div>
-</div>
-</section>
-
-<!-- PRIVACY -->
-<section id="p-privacy" class="page" style="background:linear-gradient(180deg,#F8FAFC 0%,#fff 40%)">
-<div class="wrap" style="padding-top:20px">
-  <div class="hero" style="background:linear-gradient(135deg,#0A1F44,#0038A8);color:#fff">
-    <div><p class="eb" style="color:#FCD116">PRIVACY POLICY</p><h1>Your privacy is<br><span style="color:#FCD116">non-negotiable.</span></h1><p style="color:rgba(255,255,255,.9)">Ang ginagawa mo sa BuhAI ay nananatili sa device mo.</p></div>
-    <svg viewBox="0 0 260 240" class="ft"><path d="M130 18 L225 50 L225 130 Q225 185 130 218 Q35 185 35 130 L35 50 Z" fill="#FCD116" stroke="#CE1126" stroke-width="3"/><circle cx="130" cy="120" r="34" fill="#CE1126"/></svg>
-  </div>
-  <div class="g3 mb2">
-    <div class="card tc" style="border-top:4px solid #CE1126"><div style="font-size:32px">🚫</div><h4 style="margin:4px 0 2px">No Tracking</h4><p style="font-size:12px;color:#64748B;margin:0">Walang Google Analytics.</p></div>
-    <div class="card tc" style="border-top:4px solid #0038A8"><div style="font-size:32px">💻</div><h4 style="margin:4px 0 2px">Local Only</h4><p style="font-size:12px;color:#64748B;margin:0">All tools run in your browser.</p></div>
-    <div class="card tc" style="border-top:4px solid #FCD116"><div style="font-size:32px">📭</div><h4 style="margin:4px 0 2px">No Spam</h4><p style="font-size:12px;color:#64748B;margin:0">Walang unsolicited email.</p></div>
-  </div>
-  <div class="card" style="max-width:800px;margin:0 auto;line-height:1.8">
-    <h3 style="font-size:20px;font-weight:800;margin:0 0 12px;color:#0038A8">Full Policy</h3>
-    <p style="margin:0 0 10px"><strong>Updated:</strong> August 2026 · RA 10173 compliant</p>
-    <h4 style="color:#CE1126;margin:14px 0 4px">1. What we collect</h4>
-    <p style="margin:0 0 10px;color:#374151;font-size:14px">Halos wala. Standard server logs kept 7 days only to prevent abuse.</p>
-    <h4 style="color:#CE1126;margin:14px 0 4px">2. How tools work</h4>
-    <p style="margin:0 0 10px;color:#374151;font-size:14px">All tools run entirely in your browser. Your passwords, photos, data never leave your device.</p>
-    <h4 style="color:#CE1126;margin:14px 0 4px">3. Your rights</h4>
-    <p style="margin:0;color:#374151;font-size:14px">Under Philippine Data Privacy Act you may request access / deletion. Email privacy@buhai.vercel.app.</p>
-  </div>
-</div>
-</section>
-
-</main>
-
-<footer>
-<div class="wrap">
-  <div class="fbar" style="margin-bottom:28px"></div>
-  <div class="fg">
-    <div>
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-        <div style="width:34px;height:34px;border-radius:8px;position:relative;overflow:hidden"><div style="position:absolute;inset:0;background:linear-gradient(180deg,#0038A8 50%,#CE1126 50%)"></div></div>
-        <span style="font-weight:800;font-size:16px">Buh<span style="color:#FCD116">AI</span></span>
-      </div>
-      <p style="font-size:13px;color:rgba(255,255,255,.7);margin:0 0 12px">Everyday tools, made simpler. Para sa bawat Pilipino.</p>
-    </div>
-    <div><h5 style="color:#FCD116;font-size:11px;letter-spacing:.15em;text-transform:uppercase;margin:0 0 12px">Product</h5><div style="display:flex;flex-direction:column;gap:7px"><a data-go="tools">Tools</a><a data-go="ai">AI</a><a data-go="guides">Guides</a></div></div>
-    <div><h5 style="color:#FCD116;font-size:11px;letter-spacing:.15em;text-transform:uppercase;margin:0 0 12px">Company</h5><div style="display:flex;flex-direction:column;gap:7px"><a data-go="about">About</a><a data-go="contact">Contact</a><a data-go="privacy">Privacy</a></div></div>
-    <div><h5 style="color:#FCD116;font-size:11px;letter-spacing:.15em;text-transform:uppercase;margin:0 0 12px">Pages</h5><div style="display:flex;flex-direction:column;gap:7px"><a data-go="home">Home</a><a data-go="tools">Tools</a><a data-go="ai">AI</a><a data-go="guides">Guides</a><a data-go="about">About</a><a data-go="contact">Contact</a><a data-go="privacy">Privacy</a></div></div>
-  </div>
-  <div style="padding-top:18px;border-top:1px solid rgba(255,255,255,.1);display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;font-size:11px;color:rgba(255,255,255,.5)"><div>© 2026 BuhAI · Lahat ng karapatan ay nakalaan</div><div>Made with ❤️ in the Philippines</div></div>
-</div>
-</footer>
-
-<div id="mb" class="mb">
-  <div class="md">
-    <div class="mh"><div style="display:flex;align-items:center;gap:10px"><div class="mi" id="mi">🔧</div><h3 id="mt">Tool</h3></div><button class="btn bo" style="padding:5px 9px" id="mClose">✕</button></div>
-    <div class="mbody" id="mbody"></div>
-  </div>
-</div>
-
-<script>
-var PAGES=['home','tools','ai','guides','about','contact','privacy'];
-function go(p){location.hash=p==='home'?'/':'/'+p;show(p);window.scrollTo({top:0,behavior:'smooth'});document.getElementById('mm').classList.add('hidden')}
-function show(p){
-  for(var i=0;i<PAGES.length;i++){
-    var el=document.getElementById('p-'+PAGES[i]);
-    if(el) el.classList.toggle('on',PAGES[i]===p);
-  }
-  document.querySelectorAll('.nav[data-go]').forEach(function(a){a.classList.toggle('on',a.getAttribute('data-go')===p)});
-  document.title='BuhAI — '+p.charAt(0).toUpperCase()+p.slice(1);
-}
-function routeFromHash(){var h=(location.hash||'#/').replace('#/','')||'home';if(PAGES.indexOf(h)>-1)show(h);else show('home')}
-window.addEventListener('hashchange',routeFromHash);
-
-function toast(m){
-  var d=document.createElement('div');
-  d.textContent=m;
-  d.style.cssText='position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#0A1F44;color:#fff;padding:12px 20px;border-radius:14px;z-index:999;font-size:14px;font-weight:700;box-shadow:0 20px 50px rgba(0,0,0,.4);border:2px solid #FCD116';
-  document.body.appendChild(d);
-  setTimeout(function(){d.style.opacity='0';d.style.transition='.3s';setTimeout(function(){d.remove()},300)},1700);
-}
-
-var TOOLS=[
-  {k:'qr',n:'QR Generator',d:'Text / URL / Email / Wi-Fi → PNG',i:'▦',bg:'rgba(0,56,168,.08)',c:'#0038A8'},
-  {k:'age',n:'Age Calculator',d:'DOB → age + days to birthday',i:'◷',bg:'rgba(206,17,38,.08)',c:'#CE1126'},
-  {k:'pwd',n:'Password Maker',d:'Strong password, local only',i:'🔑',bg:'rgba(0,56,168,.08)',c:'#0038A8'},
-  {k:'img',n:'Image Compressor',d:'JPG/PNG/WebP shrink',i:'🖼',bg:'rgba(206,17,38,.08)',c:'#CE1126'},
-  {k:'bmi',n:'BMI Calculator',d:'Metric / imperial',i:'⚖',bg:'rgba(0,56,168,.08)',c:'#0038A8'},
-  {k:'res',n:'Resume Builder',d:'Simple resume → print/PDF',i:'📄',bg:'rgba(206,17,38,.08)',c:'#CE1126'},
-  {k:'wc',n:'Word Counter',d:'Words / chars / read time',i:'¶',bg:'rgba(0,56,168,.08)',c:'#0038A8'},
-  {k:'pct',n:'% Calculator',d:'% of / % change',i:'%',bg:'rgba(206,17,38,.08)',c:'#CE1126'}
-];
-
-function toolCard(i){var t=TOOLS[i];return'<div class="card tl" data-tool="'+t.k+'"><div class="th"><div class="ti">'+t.i+'</div><div class="tn">0'+(i+1)+'</div></div><h3>'+t.n+'</h3><p>'+t.d+'</p><div class="tcta">Buksan →</div></div>'}
-function toolCards(arr){var s='';for(var i=0;i<arr.length;i++)s+=toolCard(arr[i]);return s}
-
-function initContent(){
-  document.getElementById('homeTools').innerHTML=toolCards([0,2,4,6]);
-  document.getElementById('allTools').innerHTML=toolCards([0,1,2,3,4,5,6,7]);
-  var ST=[['8','Tools'],['100%','Free'],['0','Sign-ups'],['🇵🇭','Pinoy']];
-  var s='';for(var i=0;i<ST.length;i++)s+='<div class="card tc"><div style="font-size:30px;font-weight:800" class="gt">'+ST[i][0]+'</div><div style="font-size:11px;font-weight:700;color:#64748B;margin-top:4px">'+ST[i][1]+'</div></div>';
-  document.getElementById('homeStats').innerHTML=s;
-  var AI=[['✍️','Writing','EN/PH emails, essays','rgba(0,56,168,.1)','#0038A8'],['⚡','Productivity','Summaries, Taglish','rgba(206,17,38,.08)','#CE1126'],['🛡️','Safer AI','Verify, don\'t trust','rgba(0,56,168,.1)','#0038A8'],['📚','Learning','Math/Sci/English','rgba(206,17,38,.08)','#CE1126'],['💼','Career','Resume, interview','rgba(0,56,168,.1)','#0038A8'],['🏪','Business','Sari-sari helpers','rgba(206,17,38,.08)','#CE1126']];
-  s='';for(var i=0;i<AI.length;i++)s+='<div class="card"><div style="width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:'+AI[i][3]+';color:'+AI[i][4]+';margin-bottom:10px">'+AI[i][0]+'</div><h3 style="font-size:15px;font-weight:800;margin:0 0 4px">'+AI[i][1]+'</h3><p style="font-size:13px;color:#64748B;margin:0">'+AI[i][2]+'</p></div>';
-  document.getElementById('aiCards').innerHTML=s;
-  var G=[['01','Wi-Fi QR code','For tindahan / home','QR · 2m','#0038A8'],['02','Strong password','GCash/Maya method','Pwd · 3m','#CE1126'],['03','Shrink photos','Messenger/email ready','Img · 2m','#B45309'],['04','Resume that works','BPO / POEA tips','Res · 5m','#0038A8'],['05','13th Month Pay','Step-by-step math','% · 4m','#CE1126'],['06','AI for students','No plagiarism rules','AI · 6m','#B45309']];
-  s='';for(var i=0;i<G.length;i++){var tc=G[i][4]==='#B45309'?'#0A1F44':'#fff';s+='<div class="card" style="display:flex;gap:14px;align-items:flex-start"><div style="width:44px;height:44px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:800;background:'+G[i][4]+';color:'+tc+'">'+G[i][0]+'</div><div style="flex:1"><h3 style="font-size:14px;font-weight:800;margin:0 0 4px">'+G[i][1]+'</h3><p style="font-size:12px;color:#64748B;margin:0 0 8px">'+G[i][2]+'</p><span class="tg" style="background:'+G[i][4]+'18;color:'+G[i][4]+'">'+G[i][3]+'</span></div></div>';}
-  document.getElementById('guideCards').innerHTML=s;
-  var AB=[['⚡','Fast','Instant on any data'],['🔒','Private','No tracking ever'],['💛','Free','All tools, always']];
-  s='';for(var i=0;i<AB.length;i++)s+='<div class="card tc"><div style="font-size:30px;margin-bottom:6px">'+AB[i][0]+'</div><h3 style="font-size:16px;font-weight:800;margin:0 0 4px">'+AB[i][1]+'</h3><p style="font-size:12px;color:#64748B;margin:0">'+AB[i][2]+'</p></div>';
-  document.getElementById('aboutCards').innerHTML=s;
-}
-
-function initClicks(){
-  document.querySelectorAll('[data-go]').forEach(function(el){el.addEventListener('click',function(e){e.preventDefault();go(el.getAttribute('data-go'))})});
-  document.getElementById('mmBtn').addEventListener('click',function(){document.getElementById('mm').classList.toggle('hidden')});
-  document.addEventListener('click',function(e){var c=e.target.closest('[data-tool]');if(c)openTool(c.getAttribute('data-tool'))});
-  document.getElementById('mClose').addEventListener('click',closeModal);
-  document.getElementById('mb').addEventListener('click',function(e){if(e.target===this)closeModal()});
-  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal()});
-  document.getElementById('cForm').addEventListener('submit',function(e){e.preventDefault();toast('Salamat! Message sent ✓');this.reset()});
-}
-
-function openTool(k){
-  var t=null;for(var i=0;i<TOOLS.length;i++){if(TOOLS[i].k===k){t=TOOLS[i];break}}
-  if(!t)return;
-  document.getElementById('mt').textContent=t.n;
-  document.getElementById('mi').textContent=t.i;
-  document.getElementById('mi').style.background=t.bg;
-  document.getElementById('mi').style.color=t.c;
-  var b=document.getElementById('mbody');b.innerHTML='';
-  if(k==='qr')tQR(b);else if(k==='age')tAge(b);else if(k==='pwd')tPwd(b);else if(k==='img')tImg(b
+      window.addEventListener('resize', () => chart.resize());
+    })();
+  </script>
+</body>
+</html>
