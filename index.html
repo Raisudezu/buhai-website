@@ -1,253 +1,1080 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Clean, responsive data dashboard built with vanilla HTML, Tailwind CSS, and ECharts.">
-  <title>Data Dashboard</title>
+<html style="margin:0;padding:0;">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script>
+(function(){
+  var s = document.createElement('style');
+  s.textContent = `
+/* ===== OFFICIAL PHILIPPINE FLAG COLOR PALETTE ===== */
+:root{
+  --ph-blue:#0038A8;   /* Official Flag Blue */
+  --ph-red:#CE1126;    /* Official Flag Red */
+  --ph-yellow:#FCD116; /* Official Sun & Stars Yellow */
+  --ph-white:#FFFFFF;
+  --ph-dark:#0A1F44;   /* Dark blue for readability */
+  --ph-ink:#111827;    /* Body text */
+  --ph-muted:#64748B;  /* Secondary text */
+  --bg-soft:#F5F7FF;   /* Soft tinted background */
+  --bg-card:#FFFFFF;
+  --border:rgba(0,56,168,0.12);
+  --border-strong:rgba(0,56,168,0.22);
+  --shadow:0 10px 40px -12px rgba(0,56,168,0.25);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg-soft);color:var(--ph-ink);font-family:'Sora',system-ui,sans-serif;-webkit-font-smoothing:antialiased;scroll-behavior:smooth}
+::selection{background:var(--ph-yellow);color:var(--ph-dark)}
 
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+/* ===== ANIMATIONS ===== */
+.reveal{opacity:0;transform:translateY(24px);animation:fadeUp .7s cubic-bezier(.2,.7,.2,1) forwards}
+.reveal:nth-child(2){animation-delay:.08s}.reveal:nth-child(3){animation-delay:.16s}.reveal:nth-child(4){animation-delay:.24s}
+.reveal:nth-child(5){animation-delay:.32s}.reveal:nth-child(6){animation-delay:.4s}.reveal:nth-child(7){animation-delay:.48s}.reveal:nth-child(8){animation-delay:.56s}
+@keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
+@keyframes sunSpin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:.8}50%{transform:scale(1.08);opacity:1}}
+.sun-spin{transform-origin:center;animation:sunSpin 30s linear infinite}
+.float-anim{animation:float 5s ease-in-out infinite}
+.pulse-anim{animation:pulse 2.5s ease-in-out infinite}
 
-  <!-- Libraries -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+/* ===== NAVIGATION ===== */
+.nav-link{position:relative;color:var(--ph-dark);font-weight:500;font-size:14px;padding:6px 2px;transition:color .2s ease}
+.nav-link:hover{color:var(--ph-red)}
+.nav-link::after{content:'';position:absolute;bottom:-2px;left:0;width:0;height:2.5px;background:var(--ph-red);transition:width .3s ease;border-radius:2px}
+.nav-link:hover::after,.nav-link.active::after{width:100%}
+.nav-link.active{color:var(--ph-blue)}
 
-  <!-- Theme & Styles -->
-  <script>
-    (function () {
-      const s = document.createElement('style');
-      s.textContent = `
-        :root {
-          --bg: #f8fafb;
-          --card: #ffffff;
-          --text: #0f172a;
-          --muted: #64748b;
-          --accent: #2d7eb5;
-          --accent-soft: rgba(45, 126, 181, 0.14);
-          --accent2: #c85a3a;
-          --accent2-soft: rgba(200, 90, 58, 0.14);
-          --border: rgba(15, 23, 42, 0.08);
-        }
+/* ===== BUTTONS ===== */
+.btn-primary{background:linear-gradient(135deg,var(--ph-blue),#0B4ED1);color:#fff;font-weight:600;transition:all .25s ease;box-shadow:var(--shadow)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 16px 50px -12px rgba(0,56,168,0.4)}
+.btn-accent{background:linear-gradient(135deg,var(--ph-red),#E01A31);color:#fff;font-weight:600;transition:all .25s ease}
+.btn-accent:hover{transform:translateY(-2px);box-shadow:0 16px 50px -12px rgba(206,17,38,0.4)}
+.btn-yellow{background:var(--ph-yellow);color:var(--ph-dark);font-weight:700;transition:all .25s ease}
+.btn-yellow:hover{transform:translateY(-2px);filter:brightness(1.05)}
+.btn-ghost{background:transparent;border:1.5px solid var(--border-strong);color:var(--ph-dark);font-weight:600;transition:all .25s ease}
+.btn-ghost:hover{border-color:var(--ph-blue);color:var(--ph-blue);background:rgba(0,56,168,0.04)}
 
-        * { box-sizing: border-box; }
+/* ===== CARDS & GLASS ===== */
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow);transition:all .3s ease}
+.card:hover{transform:translateY(-5px);box-shadow:0 20px 50px -15px rgba(0,56,168,0.3);border-color:var(--ph-yellow)}
+.glass{background:rgba(255,255,255,0.75);border:1px solid rgba(255,255,255,0.6);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
 
-        body {
-          margin: 0;
-          font-family: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
-          background: var(--bg);
-          color: var(--text);
-          -webkit-font-smoothing: antialiased;
-          overflow-wrap: break-word;
-        }
+/* ===== SECTION HERO ILLUSTRATION BANNER ===== */
+.hero-banner{position:relative;width:100%;border-radius:28px;overflow:hidden;padding:60px 40px;margin-bottom:56px;display:flex;align-items:center;justify-content:space-between;gap:40px;min-height:260px}
+.hero-banner svg{max-width:340px;width:100%;height:auto;flex-shrink:0}
+@media(max-width:768px){.hero-banner{flex-direction:column-reverse;text-align:center;padding:40px 24px;min-height:auto}.hero-banner svg{max-width:220px}}
 
-        .reveal {
-          opacity: 0;
-          transform: translateY(20px);
-          animation: fadeUp 0.6s ease forwards;
-        }
-        .reveal:nth-child(2) { animation-delay: 0.1s; }
-        .reveal:nth-child(3) { animation-delay: 0.2s; }
-        .reveal:nth-child(4) { animation-delay: 0.3s; }
-        .reveal:nth-child(5) { animation-delay: 0.4s; }
+/* ===== TOOL CARD ===== */
+.tool-card{cursor:pointer}
+.tool-card:hover .tool-icon{background:linear-gradient(135deg,var(--ph-yellow),#FDE68A);transform:scale(1.08) rotate(-4deg)}
+.tool-card:hover .tool-num{color:var(--ph-red)}
+.tool-icon{transition:all .35s ease;background:rgba(0,56,168,0.08);color:var(--ph-blue)}
 
-        @keyframes fadeUp {
-          to { opacity: 1; transform: translateY(0); }
-        }
+/* ===== FORM ELEMENTS ===== */
+input,select,textarea{background:#fff;border:1.5px solid var(--border);color:var(--ph-ink);border-radius:12px;padding:12px 14px;font-family:inherit;font-size:14px;transition:all .2s ease;outline:none;width:100%}
+input:focus,select:focus,textarea:focus{border-color:var(--ph-blue);background:rgba(0,56,168,0.03);box-shadow:0 0 0 4px rgba(0,56,168,0.1)}
+input::placeholder,textarea::placeholder{color:var(--ph-muted)}
 
-        .metric-card {
-          transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .metric-card:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-        }
+/* ===== MODAL ===== */
+.modal-backdrop{position:fixed;inset:0;background:rgba(10,31,68,0.65);backdrop-filter:blur(6px);z-index:100;display:none;align-items:center;justify-content:center;padding:20px;animation:fadeIn .25s ease}
+.modal-backdrop.active{display:flex}
+.modal{background:#fff;border:1px solid var(--border);border-radius:24px;max-width:720px;width:100%;max-height:90vh;overflow:hidden;animation:modalUp .35s cubic-bezier(.2,.7,.2,1);box-shadow:0 40px 100px -20px rgba(0,0,0,0.4)}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes modalUp{from{opacity:0;transform:translateY(30px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
 
-        .tbl-row { transition: background 0.15s ease; }
-        .tbl-row:hover { background: rgba(128, 128, 128, 0.06); }
-      `;
-      document.head.appendChild(s);
-    })();
-  </script>
-</head>
-<body>
-  <div class="max-w-5xl mx-auto px-6 py-12">
+/* ===== UTILITIES ===== */
+.eyebrow{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--ph-red);font-weight:700}
+.gradient-text{background:linear-gradient(100deg,var(--ph-blue) 0%,var(--ph-red) 60%,#C2410C 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ph-border-top{border-top:4px solid transparent;border-image:linear-gradient(90deg,var(--ph-blue) 33%,var(--ph-white) 33%,var(--ph-white) 66%,var(--ph-red) 66%) 1}
+.tag{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:.03em}
+.num{font-variant-numeric:tabular-nums}
 
-    <!-- HERO -->
-    <header class="reveal mb-14">
-      <div class="flex items-center gap-3 mb-4">
-        <div class="w-11 h-11 rounded-xl flex items-center justify-center" style="background: var(--accent-soft); color: var(--accent);">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/>
-          </svg>
-        </div>
-        <div>
-          <p class="text-xs tracking-[0.2em] uppercase" style="color: var(--muted); font-family: ui-monospace, monospace;">
-            Quarterly Report
-          </p>
-          <h1 class="text-3xl sm:text-4xl font-bold tracking-tight leading-tight">
-            2026 Performance Overview
-          </h1>
-        </div>
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar{width:10px}::-webkit-scrollbar-track{background:var(--bg-soft)}::-webkit-scrollbar-thumb{background:var(--ph-blue);border-radius:10px}::-webkit-scrollbar-thumb:hover{background:var(--ph-red)}
+`;
+  document.head.appendChild(s);
+})();
+</script>
+<div style="margin:0;padding:0;overflow-x:hidden">
+
+<!-- ============================================================= -->
+<!-- NAVIGATION - FULL MULTI-PAGE (ALL SECTIONS) -->
+<!-- ============================================================= -->
+<nav id="mainNav" class="fixed top-0 left-0 right-0 z-50 glass" style="border-bottom:1px solid var(--border)">
+  <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+    <!-- Logo -->
+    <a href="#home" class="flex items-center gap-2.5">
+      <div style="width:40px;height:40px;border-radius:10px;position:relative;overflow:hidden;box-shadow:0 4px 12px rgba(0,56,168,0.3)">
+        <div style="position:absolute;inset:0;background:linear-gradient(180deg,var(--ph-blue) 50%,var(--ph-red) 50%)"></div>
+        <svg viewBox="0 0 40 40" style="position:absolute;inset:0;width:100%;height:100%"><circle cx="20" cy="20" r="7" fill="#FCD116"/><g fill="#FCD116"><polygon points="20,5 21.8,15 20,13 18.2,15"/><polygon points="35,20 25,21.8 27,20 25,18.2"/><polygon points="20,35 18.2,25 20,27 21.8,25"/><polygon points="5,20 15,18.2 13,20 15,21.8"/><polygon points="30.5,9.5 23.5,15.5 25.2,14.2 26.5,12.5"/><polygon points="30.5,30.5 23.5,24.5 25.2,25.8 26.5,27.5"/><polygon points="9.5,30.5 16.5,24.5 14.8,25.8 13.5,27.5"/><polygon points="9.5,9.5 16.5,15.5 14.8,14.2 13.5,12.5"/></g></svg>
       </div>
-      <p class="text-base max-w-2xl" style="color: var(--muted);">
-        A clean, responsive summary of key metrics, trends, and breakdowns. Built with zero build tools — open the file in any browser.
-      </p>
-    </header>
+      <span style="font-weight:800;letter-spacing:-.01em;font-size:19px;color:var(--ph-dark)">Buh<span style="color:var(--ph-red)">AI</span></span>
+    </a>
 
-    <!-- METRIC CARDS -->
-    <section class="reveal flex flex-wrap gap-4 mb-14">
-      <!-- Card 1 -->
-      <article class="metric-card flex-1 min-w-[200px] rounded-2xl p-5 border"
-               style="background: var(--card); border-color: var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
-        <div class="flex items-center gap-2 mb-2">
-          <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: var(--accent-soft); color: var(--accent);">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M23 6l-9.5 9.5-5-5L1 18"/><path d="M17 6h6v6"/>
-            </svg>
-          </div>
-          <span class="text-xs uppercase tracking-wide font-medium" style="color: var(--muted);">Revenue</span>
-        </div>
-        <div class="text-3xl font-bold">$1.63M</div>
-        <div class="text-xs mt-1 font-medium text-emerald-600">▲ +12.3% vs last quarter</div>
-      </article>
+    <!-- Desktop Nav - ALL PAGES -->
+    <div class="hidden lg:flex items-center gap-7">
+      <a href="#home" class="nav-link active" data-nav="home">Home</a>
+      <a href="#tools" class="nav-link" data-nav="tools">Tools</a>
+      <a href="#ai" class="nav-link" data-nav="ai">AI Resources</a>
+      <a href="#guides" class="nav-link" data-nav="guides">Guides</a>
+      <a href="#about" class="nav-link" data-nav="about">About</a>
+      <a href="#contact" class="nav-link" data-nav="contact">Contact</a>
+      <a href="#privacy" class="nav-link" data-nav="privacy">Privacy</a>
+    </div>
 
-      <!-- Card 2 -->
-      <article class="metric-card flex-1 min-w-[200px] rounded-2xl p-5 border"
-               style="background: var(--card); border-color: var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
-        <div class="flex items-center gap-2 mb-2">
-          <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: var(--accent-soft); color: var(--accent);">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-            </svg>
-          </div>
-          <span class="text-xs uppercase tracking-wide font-medium" style="color: var(--muted);">Active Users</span>
-        </div>
-        <div class="text-3xl font-bold">28,491</div>
-        <div class="text-xs mt-1 font-medium text-emerald-600">▲ +5.7%</div>
-      </article>
-
-      <!-- Card 3 -->
-      <article class="metric-card flex-1 min-w-[200px] rounded-2xl p-5 border"
-               style="background: var(--card); border-color: var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
-        <div class="flex items-center gap-2 mb-2">
-          <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: var(--accent-soft); color: var(--accent);">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
-            </svg>
-          </div>
-          <span class="text-xs uppercase tracking-wide font-medium" style="color: var(--muted);">Avg. Response</span>
-        </div>
-        <div class="text-3xl font-bold">1.42s</div>
-        <div class="text-xs mt-1 font-medium text-rose-600">▼ −2.1% slower</div>
-      </article>
-    </section>
-
-    <!-- CHART -->
-    <section class="reveal rounded-2xl p-6 sm:p-8 mb-8 border"
-             style="background: var(--card); border-color: var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
-      <h2 class="text-xl font-semibold mb-6">Quarterly Revenue Trend</h2>
-      <div id="chart-revenue" style="height: 380px; width: 100%;"></div>
-    </section>
-
-    <!-- TABLE -->
-    <section class="reveal rounded-2xl p-6 sm:p-8 mb-8 border overflow-x-auto"
-             style="background: var(--card); border-color: var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
-      <h2 class="text-xl font-semibold mb-6">Top Regions</h2>
-      <table class="w-full text-sm min-w-[500px]">
-        <thead>
-          <tr class="text-xs uppercase tracking-wide border-b" style="color: var(--muted); border-color: var(--border);">
-            <th class="text-left pb-3 font-medium">Region</th>
-            <th class="text-left pb-3 font-medium">Revenue</th>
-            <th class="text-left pb-3 font-medium">Growth</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr class="tbl-row border-b" style="border-color: var(--border);">
-            <td class="py-3.5 font-medium">Asia Pacific</td><td>$612,400</td>
-            <td class="text-emerald-600 font-medium">▲ 18.2%</td>
-          </tr>
-          <tr class="tbl-row border-b" style="border-color: var(--border);">
-            <td class="py-3.5 font-medium">North America</td><td>$548,900</td>
-            <td class="text-emerald-600 font-medium">▲ 9.4%</td>
-          </tr>
-          <tr class="tbl-row border-b" style="border-color: var(--border);">
-            <td class="py-3.5 font-medium">Europe</td><td>$341,200</td>
-            <td class="text-rose-600 font-medium">▼ 3.1%</td>
-          </tr>
-          <tr class="tbl-row">
-            <td class="py-3.5 font-medium">Latin America</td><td>$127,500</td>
-            <td class="text-emerald-600 font-medium">▲ 22.4%</td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
-
-    <!-- FOOTER -->
-    <footer class="mt-16 pt-6 text-center text-xs" style="border-top: 1px solid var(--border); color: var(--muted);">
-      Data as of August 2026 · Built with vanilla HTML + Tailwind + ECharts
-    </footer>
+    <!-- CTA + Mobile Menu -->
+    <div class="flex items-center gap-3">
+      <a href="#tools" class="btn-primary px-5 py-2.5 rounded-xl text-sm hidden sm:inline-flex items-center gap-1.5">
+        Use Tools
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </a>
+      <button id="menuBtn" class="lg:hidden btn-ghost w-10 h-10 rounded-xl flex items-center justify-center" onclick="document.getElementById('mobileMenu').classList.toggle('hidden')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+    </div>
   </div>
 
-  <!-- Chart Init -->
-  <script>
-    (function initChart(n = 0) {
-      const el = document.getElementById('chart-revenue');
-      if (!el) return;
+  <!-- Mobile Nav - ALL PAGES -->
+  <div id="mobileMenu" class="hidden lg:hidden px-6 pb-5 flex flex-col gap-1 text-sm border-t" style="border-color:var(--border)">
+    <a href="#home" class="py-3 nav-link border-b" style="border-color:var(--border)" onclick="document.getElementById('mobileMenu').classList.add('hidden')">🏠 Home</a>
+    <a href="#tools" class="py-3 nav-link border-b" style="border-color:var(--border)" onclick="document.getElementById('mobileMenu').classList.add('hidden')">🛠️ Tools</a>
+    <a href="#ai" class="py-3 nav-link border-b" style="border-color:var(--border)" onclick="document.getElementById('mobileMenu').classList.add('hidden')">🤖 AI Resources</a>
+    <a href="#guides" class="py-3 nav-link border-b" style="border-color:var(--border)" onclick="document.getElementById('mobileMenu').classList.add('hidden')">📚 Guides</a>
+    <a href="#about" class="py-3 nav-link border-b" style="border-color:var(--border)" onclick="document.getElementById('mobileMenu').classList.add('hidden')">ℹ️ About</a>
+    <a href="#contact" class="py-3 nav-link border-b" style="border-color:var(--border)" onclick="document.getElementById('mobileMenu').classList.add('hidden')">✉️ Contact</a>
+    <a href="#privacy" class="py-3 nav-link" onclick="document.getElementById('mobileMenu').classList.add('hidden')">🔒 Privacy</a>
+  </div>
+</nav>
 
-      if (typeof echarts === 'undefined') {
-        if (n < 40) { setTimeout(() => initChart(n + 1), 250); return; }
-        el.textContent = 'Chart library failed to load.';
-        return;
-      }
+<!-- Scroll Spy -->
+<script>
+const sections = ['home','tools','ai','guides','about','contact','privacy'];
+window.addEventListener('scroll',()=>{
+  let cur='home';
+  sections.forEach(id=>{ const el=document.getElementById(id); if(el && el.getBoundingClientRect().top<=120) cur=id; });
+  document.querySelectorAll('.nav-link[data-nav]').forEach(a=>{
+    a.classList.toggle('active', a.dataset.nav===cur);
+  });
+});
+</script>
 
-      const chart = echarts.init(el);
-      const st = getComputedStyle(document.documentElement);
-      const accent = st.getPropertyValue('--accent').trim() || '#2d7eb5';
-      const muted = st.getPropertyValue('--muted').trim() || '#64748b';
-      const card = st.getPropertyValue('--card').trim() || '#ffffff';
-      const text = st.getPropertyValue('--text').trim() || '#0f172a';
-      const border = st.getPropertyValue('--border').trim() || 'rgba(15,23,42,0.08)';
+<!-- ============================================================= -->
+<!-- 1. HOME PAGE -->
+<!-- ============================================================= -->
+<section id="home" class="pt-32 pb-24 px-6 relative overflow-hidden">
+  <!-- Background PH Flag accents -->
+  <div style="position:absolute;top:120px;right:-80px;width:300px;height:300px;background:var(--ph-yellow);border-radius:50%;opacity:.12;filter:blur(60px)"></div>
+  <div style="position:absolute;bottom:-80px;left:-80px;width:320px;height:320px;background:var(--ph-blue);border-radius:50%;opacity:.1;filter:blur(60px)"></div>
 
-      const gradient = {
-        type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
-        colorStops: [
-          { offset: 0, color: accent },
-          { offset: 1, color: accent + '4d' }
-        ]
-      };
+  <div class="max-w-7xl mx-auto relative">
+    <!-- HOME HERO WITH CUSTOM PH FLAG ILLUSTRATION -->
+    <div class="hero-banner reveal" style="background:linear-gradient(135deg,var(--ph-blue) 0%,#0B4ED1 50%,var(--ph-red) 100%);color:#fff">
+      <div class="flex-1">
+        <div class="tag mb-5" style="background:var(--ph-yellow);color:var(--ph-dark)">
+          <span class="pulse-anim" style="width:7px;height:7px;border-radius:50%;background:var(--ph-red)"></span>
+          FREE · FAST · PRIVACY-CONSCIOUS · MADE FOR FILIPINOS
+        </div>
+        <h1 class="text-4xl md:text-6xl font-extrabold leading-[1.05] tracking-tight mb-5">
+          Everyday tools,<br><span style="color:var(--ph-yellow)">made simpler.</span>
+        </h1>
+        <p class="text-base md:text-xl mb-8 max-w-xl" style="color:rgba(255,255,255,.9);line-height:1.7">
+          Free online tools, AI resources, and helpful guides designed to make everyday tasks easier — built with the heart of the Philippines.
+        </p>
+        <div class="flex flex-wrap gap-3">
+          <a href="#tools" class="btn-yellow px-7 py-3.5 rounded-2xl text-base inline-flex items-center gap-2">
+            Explore Tools →
+          </a>
+          <a href="#ai" class="px-7 py-3.5 rounded-2xl text-base inline-flex items-center gap-2" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);backdrop-filter:blur(8px)">
+            Explore AI Resources ★
+          </a>
+        </div>
+      </div>
 
-      chart.setOption({
-        backgroundColor: 'transparent',
-        tooltip: {
-          trigger: 'axis',
-          backgroundColor: card,
-          borderColor: border,
-          textStyle: { color: text }
-        },
-        grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-        xAxis: {
-          type: 'category',
-          data: ['Q1', 'Q2', 'Q3', 'Q4'],
-          axisLabel: { color: muted },
-          axisTick: { show: false }
-        },
-        yAxis: {
-          type: 'value',
-          axisLabel: { color: muted, formatter: '${value}' },
-          splitLine: { lineStyle: { color: border } }
-        },
-        series: [{
-          type: 'bar',
-          data: [320000, 410000, 380000, 520000],
-          itemStyle: { borderRadius: [6, 6, 0, 0], color: gradient },
-          barMaxWidth: 60
-        }]
-      });
+      <!-- HOME ILLUSTRATION: PH Sun + 3 Stars + Tools -->
+      <svg viewBox="0 0 320 320" class="float-anim" aria-label="Philippine Flag themed illustration">
+        <defs>
+          <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#FCD116" stop-opacity=".6"/><stop offset="100%" stop-color="#FCD116" stop-opacity="0"/></radialGradient>
+        </defs>
+        <circle cx="160" cy="160" r="130" fill="url(#sunGlow)"/>
+        <!-- 3 Stars -->
+        <polygon points="60,55 66,72 83,72 69,83 74,100 60,90 46,100 51,83 37,72 54,72" fill="#FCD116" class="pulse-anim"/>
+        <polygon points="260,55 266,72 283,72 269,83 274,100 260,90 246,100 251,83 237,72 254,72" fill="#FCD116" class="pulse-anim" style="animation-delay:.5s"/>
+        <polygon points="160,275 166,292 183,292 169,303 174,320 160,310 146,320 151,303 137,292 154,292" fill="#FCD116" class="pulse-anim" style="animation-delay:1s"/>
+        <!-- Spinning Sun -->
+        <g class="sun-spin" style="transform-origin:160px 160px">
+          <circle cx="160" cy="160" r="42" fill="#FCD116"/>
+          <!-- 8 Rays -->
+          <g fill="#FCD116">
+            <polygon points="160,80 166,118 160,110 154,118"/>
+            <polygon points="240,160 202,166 210,160 202,154"/>
+            <polygon points="160,240 154,202 160,210 166,202"/>
+            <polygon points="80,160 118,154 110,160 118,166"/>
+            <polygon points="217,103 195,128 200,120 192,122"/>
+            <polygon points="217,217 192,198 200,200 195,192"/>
+            <polygon points="103,217 128,195 120,200 122,192"/>
+            <polygon points="103,103 122,128 120,120 128,122"/>
+          </g>
+        </g>
+        <!-- Floating tool icons -->
+        <g style="transform-origin:center">
+          <rect x="35" y="145" width="36" height="36" rx="8" fill="#fff" opacity=".95"/>
+          <path d="M45 155h16M45 163h12M45 171h14" stroke="#0038A8" stroke-width="2.5" stroke-linecap="round"/>
+          <rect x="249" y="145" width="36" height="36" rx="8" fill="#fff" opacity=".95"/>
+          <circle cx="267" cy="163" r="10" fill="none" stroke="#CE1126" stroke-width="2.5"/><path d="M274 156l-14 14" stroke="#CE1126" stroke-width="2.5"/>
+        </g>
+      </svg>
+    </div>
 
-      window.addEventListener('resize', () => chart.resize());
-    })();
-  </script>
-</body>
-</html>
+    <!-- Stat Strip -->
+    <div class="reveal grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
+      <div class="card p-6 text-center"><div class="text-4xl font-extrabold gradient-text num">8</div><div class="text-xs mt-2 font-semibold" style="color:var(--ph-muted)">Useful Tools</div></div>
+      <div class="card p-6 text-center"><div class="text-4xl font-extrabold gradient-text num">100%</div><div class="text-xs mt-2 font-semibold" style="color:var(--ph-muted)">Free Forever</div></div>
+      <div class="card p-6 text-center"><div class="text-4xl font-extrabold gradient-text num">0</div><div class="text-xs mt-2 font-semibold" style="color:var(--ph-muted)">Sign-ups Required</div></div>
+      <div class="card p-6 text-center"><div class="text-4xl font-extrabold gradient-text num">🇵🇭</div><div class="text-xs mt-2 font-semibold" style="color:var(--ph-muted)">Filipino-Made</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 2. TOOLS PAGE -->
+<!-- ============================================================= -->
+<section id="tools" class="py-24 px-6 ph-border-t" style="background:#fff">
+  <div class="max-w-7xl mx-auto">
+    <!-- TOOLS HERO ILLUSTRATION: Toolbox with PH Sun -->
+    <div class="hero-banner reveal" style="background:linear-gradient(135deg,#EFF6FF 0%,#FEF2F2 100%);border:1px solid var(--border)">
+      <div class="flex-1">
+        <div class="eyebrow reveal mb-3">START HERE</div>
+        <h2 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 reveal">Useful tools, <span class="gradient-text">no fuss.</span></h2>
+        <p class="text-lg reveal max-w-2xl" style="color:var(--ph-muted);line-height:1.7">
+          Focused utilities designed to be clear, quick, and easy to use on any device. Click any card to open the full tool — everything runs locally in your browser.
+        </p>
+      </div>
+      <!-- TOOLS ILLUSTRATION -->
+      <svg viewBox="0 0 320 280" aria-label="Tools illustration">
+        <!-- Toolbox -->
+        <rect x="50" y="90" width="220" height="150" rx="14" fill="#0038A8"/>
+        <rect x="50" y="90" width="220" height="35" rx="14" fill="#CE1126"/>
+        <rect x="140" y="75" width="40" height="30" rx="6" fill="#FCD116" stroke="#0A1F44" stroke-width="2"/>
+        <circle cx="110" cy="175" r="26" fill="#FCD116"/>
+        <path d="M110 155 L116 171 L104 171 Z" fill="#0A1F44"/>
+        <path d="M110 195 L116 179 L104 179 Z" fill="#0A1F44"/>
+        <path d="M90 175 L106 169 L106 181 Z" fill="#0A1F44"/>
+        <path d="M130 175 L114 169 L114 181 Z" fill="#0A1F44"/>
+        <!-- Floating tools -->
+        <g class="float-anim">
+          <rect x="20" y="30" width="50" height="50" rx="10" fill="#fff" stroke="#0038A8" stroke-width="2"/>
+          <path d="M30 45h30M30 55h20" stroke="#0038A8" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="45" cy="62" r="3" fill="#CE1126"/>
+        </g>
+        <g class="float-anim" style="animation-delay:.7s">
+          <rect x="250" y="25" width="55" height="35" rx="8" fill="#FCD116" stroke="#0A1F44" stroke-width="2"/>
+          <circle cx="267" cy="42" r="7" fill="none" stroke="#0A1F44" stroke-width="2"/>
+          <path d="M272 37l-10 10" stroke="#0A1F44" stroke-width="2"/>
+        </g>
+        <g class="float-anim" style="animation-delay:1.3s">
+          <rect x="220" y="200" width="70" height="40" rx="8" fill="#fff" stroke="#CE1126" stroke-width="2"/>
+          <path d="M230 215h50M230 225h35" stroke="#CE1126" stroke-width="2.5" stroke-linecap="round"/>
+        </g>
+      </svg>
+    </div>
+
+    <!-- ALL 8 TOOLS GRID -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <!-- 01 QR -->
+      <div class="tool-card card p-6 reveal flex flex-col" onclick="openTool('qr')">
+        <div class="flex items-start justify-between mb-5">
+          <div class="tool-icon w-12 h-12 rounded-xl flex items-center justify-center">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v3M14 20h3M20 20h1"/></svg>
+          </div>
+          <span class="tool-num text-sm font-extrabold" style="color:var(--ph-muted)">01</span>
+        </div>
+        <h3 class="font-bold text-lg mb-2" style="color:var(--ph-dark)">QR Code Generator</h3>
+        <p class="text-sm flex-1" style="color:var(--ph-muted);line-height:1.6">Create a downloadable QR code for text, links, email, phone numbers, and Wi-Fi access.</p>
+      </div>
+      <!-- 02 AGE -->
+      <div class="tool-card card p-6 reveal flex flex-col" onclick="openTool('age')">
+        <div class="flex items-start justify-between mb-5">
+          <div class="tool-icon w-12 h-12 rounded-xl flex items-center justify-center">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          </div>
+          <span class="tool-num text-sm font-extrabold" style="color:var(--ph-muted)">02</span>
+        </div>
+        <h3 class="font-bold text-lg mb-2" style="color:var(--ph-dark)">Age Calculator</h3>
+        <p class="text-sm flex-1" style="color:var(--ph-muted);line-height:1.6">Calculate an exact age, next birthday, and days lived from a date of birth.</p>
+      </div>
+      <!-- 03 PASSWORD -->
+      <div class="tool-card card p-6 reveal flex flex-col" onclick="openTool('pwd')">
+        <div class="flex items-start justify-between mb-5">
+          <div class="tool-icon w-12 h-12 rounded-xl flex items-center justify-center">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          </div>
+          <span class="tool-num text-sm font-extrabold" style="color:var(--ph-muted)">03</span>
+        </div>
+        <h3 class="font-bold text-lg mb-2" style="color:var(--ph-dark)">Password Generator</h3>
+        <p class="text-sm flex-1" style="color:var(--ph-muted);line-height:1.6">Generate a strong password entirely in your browser.</p>
+      </div>
+      <!-- 04 IMAGE -->
+      <div class="tool-card card p-6 reveal flex flex-col" onclick="openTool('img')">
+        <div class="flex items-start justify-between mb-5">
+          <div class="tool-icon w-12 h-12 rounded-xl flex items-center justify-center">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>
+          </div>
+          <span class="tool-num text-sm font-extrabold" style="color:var(--ph-muted)">04</span>
+        </div>
+        <h3 class="font-bold text-lg mb-2" style="color:var(--ph-dark)">Image Compressor</h3>
+        <p class="text-sm flex-1" style="color:var(--ph-muted);line-height:1.6">Compress JPG, PNG, or WebP images locally in your browser.</p>
+      </div>
+      <!-- 05 BMI -->
+      <div class="tool-card card p-6 reveal flex flex-col" onclick="openTool('bmi')">
+        <div class="flex items-start justify-between mb-5">
+          <div class="tool-icon w-12 h-12 rounded-xl flex items-center justify-center">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M6 6h12M7 18h10M9 10l3-3 3 3M9 14l3 3 3-3"/></svg>
+          </div>
+          <span class="tool-num text-sm font-extrabold" style="color:var(--ph-muted)">05</span>
+        </div>
+        <h3 class="font-bold text-lg mb-2" style="color:var(--ph-dark)">BMI Calculator</h3>
+        <p class="text-sm flex-1" style="color:var(--ph-muted);line-height:1.6">Calculate BMI in metric or imperial units with a plain-language category.</p>
+      </div>
+      <!-- 06 RESUME -->
+      <div class="tool-card card p-6 reveal flex flex-col" onclick="openTool('resume')">
+        <div class="flex items-start justify-between mb-5">
+          <div class="tool-icon w-12 h-12 rounded-xl flex items-center justify-center">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+          </div>
+          <span class="tool-num text-sm font-extrabold" style="color:var(--ph-muted)">06</span>
+        </div>
+        <h3 class="font-bold text-lg mb-2" style="color:var(--ph-dark)">Resume Builder</h3>
+        <p class="text-sm flex-1" style="color:var(--ph-muted);line-height:1.6">Create a simple professional resume and print it as a PDF.</p>
+      </div>
+      <!-- 07 WORD -->
+      <div class="tool-card card p-6 reveal flex flex-col" onclick="openTool('word')">
+        <div class="flex items-start justify-between mb-5">
+          <div class="tool-icon w-12 h-12 rounded-xl flex items-center justify-center">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h10M4 18h16"/></svg>
+          </div>
+          <span class="tool-num text-sm font-extrabold" style="color:var(--ph-muted)">07</span>
+        </div>
+        <h3 class="font-bold text-lg mb-2" style="color:var(--ph-dark)">Word Counter</h3>
+        <p class="text-sm flex-1" style="color:var(--ph-muted);line-height:1.6">Count words, characters, sentences, and estimated reading time in your browser.</p>
+      </div>
+      <!-- 08 PERCENTAGE -->
+      <div class="tool-card card p-6 reveal flex flex-col" onclick="openTool('pct')">
+        <div class="flex items-start justify-between mb-5">
+          <div class="tool-icon w-12 h-12 rounded-xl flex items-center justify-center">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 5L5 19M7.5 7.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM16.5 19.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/></svg>
+          </div>
+          <span class="tool-num text-sm font-extrabold" style="color:var(--ph-muted)">08</span>
+        </div>
+        <h3 class="font-bold text-lg mb-2" style="color:var(--ph-dark)">Percentage Calculator</h3>
+        <p class="text-sm flex-1" style="color:var(--ph-muted);line-height:1.6">Calculate a percentage, a percentage change, or the value after a percentage increase.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 3. AI RESOURCES PAGE -->
+<!-- ============================================================= -->
+<section id="ai" class="py-24 px-6 ph-border-t" style="background:linear-gradient(180deg,#FEF9C3 0%,#FFF 40%)">
+  <div class="max-w-7xl mx-auto">
+    <!-- AI HERO ILLUSTRATION: Brain with PH Stars -->
+    <div class="hero-banner reveal" style="background:linear-gradient(135deg,#FEF9C3 0%,#FEF3C7 100%);border:1.5px solid var(--ph-yellow)">
+      <div class="flex-1">
+        <div class="eyebrow reveal mb-3">LEARN AND EXPLORE · AI RESOURCES</div>
+        <h2 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 reveal">Use AI With <span style="color:var(--ph-blue)">Clarity.</span></h2>
+        <p class="text-lg reveal max-w-2xl" style="color:var(--ph-dark);line-height:1.7">
+          Practical starting points for writing, productivity, learning, career, and safer AI use — curated for Filipino students, workers, and creators.
+        </p>
+        <a href="#" class="btn-primary mt-6 px-6 py-3 rounded-xl text-sm inline-flex items-center gap-2 reveal">Browse All AI Resources →</a>
+      </div>
+      <!-- AI ILLUSTRATION -->
+      <svg viewBox="0 0 320 300" aria-label="AI Brain illustration">
+        <!-- Brain -->
+        <path d="M160 50 C110 50 80 90 85 135 C75 150 78 180 95 195 C90 215 110 240 140 245 C150 258 170 258 180 245 C210 240 230 215 225 195 C242 180 245 150 235 135 C240 90 210 50 160 50 Z" fill="#0038A8" opacity=".9"/>
+        <path d="M110 110 C125 125 120 150 110 170" stroke="#FCD116" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <path d="M210 110 C195 125 200 150 210 170" stroke="#FCD116" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <path d="M160 90 L160 210" stroke="#FCD116" stroke-width="2.5" stroke-dasharray="5 4"/>
+        <!-- Circuit nodes -->
+        <g fill="#CE1126">
+          <circle cx="100" cy="140" r="5" class="pulse-anim"/>
+          <circle cx="220" cy="140" r="5" class="pulse-anim" style="animation-delay:.4s"/>
+          <circle cx="160" cy="100" r="5" class="pulse-anim" style="animation-delay:.8s"/>
+          <circle cx="160" cy="200" r="5" class="pulse-anim" style="animation-delay:1.2s"/>
+        </g>
+        <!-- Stars -->
+        <polygon points="40,40 44,52 56,52 46,60 50,72 40,64 30,72 34,60 24,52 36,52" fill="#FCD116" class="float-anim"/>
+        <polygon points="280,50 284,62 296,62 286,70 290,82 280,74 270,82 274,70 264,62 276,62" fill="#CE1126" class="float-anim" style="animation-delay:.8s"/>
+      </svg>
+    </div>
+
+    <!-- AI Cards -->
+    <div class="grid md:grid-cols-3 gap-5">
+      <div class="card p-7 reveal hover:border-[var(--ph-blue)]">
+        <div class="w-12 h-12 rounded-xl mb-5 flex items-center justify-center" style="background:rgba(0,56,168,.1);color:var(--ph-blue)">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        </div>
+        <h3 class="font-bold text-xl mb-3" style="color:var(--ph-dark)">Writing & Editing</h3>
+        <p class="text-sm mb-5" style="color:var(--ph-muted);line-height:1.7">Prompts for emails, essays, application letters, and clear first drafts in English or Filipino.</p>
+        <span class="font-bold text-sm" style="color:var(--ph-blue)">Explore guides →</span>
+      </div>
+      <div class="card p-7 reveal hover:border-[var(--ph-red)]">
+        <div class="w-12 h-12 rounded-xl mb-5 flex items-center justify-center" style="background:rgba(206,17,38,.08);color:var(--ph-red)">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h7l-1 8 10-12h-7z"/></svg>
+        </div>
+        <h3 class="font-bold text-xl mb-3" style="color:var(--ph-dark)">Productivity</h3>
+        <p class="text-sm mb-5" style="color:var(--ph-muted);line-height:1.7">Turn AI into a meeting summarizer, research assistant, and Tagalog/English translator.</p>
+        <span class="font-bold text-sm" style="color:var(--ph-red)">Explore guides →</span>
+      </div>
+      <div class="card p-7 reveal hover:border-[var(--ph-blue)]">
+        <div class="w-12 h-12 rounded-xl mb-5 flex items-center justify-center" style="background:rgba(0,56,168,.1);color:var(--ph-blue)">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h3 class="font-bold text-xl mb-3" style="color:var(--ph-dark)">Safer AI Use</h3>
+        <p class="text-sm mb-5" style="color:var(--ph-muted);line-height:1.7">What to verify, what not to share online, and how to spot AI hallucinations.</p>
+        <span class="font-bold text-sm" style="color:var(--ph-blue)">Explore guides →</span>
+      </div>
+      <div class="card p-7 reveal hover:border-[var(--ph-red)]">
+        <div class="w-12 h-12 rounded-xl mb-5 flex items-center justify-center" style="background:rgba(206,17,38,.08);color:var(--ph-red)">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+        </div>
+        <h3 class="font-bold text-xl mb-3" style="color:var(--ph-dark)">Learning & School</h3>
+        <p class="text-sm mb-5" style="color:var(--ph-muted);line-height:1.7">AI tutors for Math, Science, and English — plus how to cite AI ethically in assignments.</p>
+        <span class="font-bold text-sm" style="color:var(--ph-red)">Explore guides →</span>
+      </div>
+      <div class="card p-7 reveal hover:border-[var(--ph-blue)]">
+        <div class="w-12 h-12 rounded-xl mb-5 flex items-center justify-center" style="background:rgba(0,56,168,.1);color:var(--ph-blue)">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
+        </div>
+        <h3 class="font-bold text-xl mb-3" style="color:var(--ph-dark)">Career & Work</h3>
+        <p class="text-sm mb-5" style="color:var(--ph-muted);line-height:1.7">Resume polishing, interview prep, and upskilling paths for OFWs and local professionals.</p>
+        <span class="font-bold text-sm" style="color:var(--ph-blue)">Explore guides →</span>
+      </div>
+      <div class="card p-7 reveal hover:border-[var(--ph-red)]">
+        <div class="w-12 h-12 rounded-xl mb-5 flex items-center justify-center" style="background:rgba(206,17,38,.08);color:var(--ph-red)">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 100 20 10 10 0 000-20z"/><path d="M2 12h20M12 2a15 15 0 010 20M12 2a15 15 0 000 20"/></svg>
+        </div>
+        <h3 class="font-bold text-xl mb-3" style="color:var(--ph-dark)">AI Tools Directory</h3>
+        <p class="text-sm mb-5" style="color:var(--ph-muted);line-height:1.7">Handpicked free tools for image generation, voice, coding, and small business use.</p>
+        <span class="font-bold text-sm" style="color:var(--ph-red)">Explore list →</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 4. GUIDES PAGE -->
+<!-- ============================================================= -->
+<section id="guides" class="py-24 px-6 ph-border-t" style="background:#fff">
+  <div class="max-w-7xl mx-auto">
+    <!-- GUIDES HERO ILLUSTRATION: PH Map with Waypoints -->
+    <div class="hero-banner reveal" style="background:linear-gradient(135deg,#F0FDF4 0%,#EFF6FF 100%);border:1px solid var(--border)">
+      <div class="flex-1">
+        <div class="eyebrow reveal mb-3">GUIDES</div>
+        <h2 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 reveal">Learn By <span class="gradient-text">Doing.</span></h2>
+        <p class="text-lg reveal max-w-2xl" style="color:var(--ph-muted);line-height:1.7">
+          Short, practical guides that connect a real task with the right BuhAI tool. Every guide is written for Filipino users with local examples.
+        </p>
+        <a href="#" class="btn-accent mt-6 px-6 py-3 rounded-xl text-sm inline-flex items-center gap-2 reveal">Read All Guides →</a>
+      </div>
+      <!-- GUIDES ILLUSTRATION -->
+      <svg viewBox="0 0 320 280" aria-label="Philippine map guides illustration">
+        <!-- Stylized PH archipelago -->
+        <g fill="#0038A8" opacity=".85">
+          <path d="M100 60 Q115 50 135 60 Q150 75 140 95 Q125 105 105 95 Q90 80 100 60 Z"/>
+          <path d="M140 100 Q160 90 175 110 Q180 140 165 160 Q145 165 135 145 Q130 120 140 100 Z"/>
+          <path d="M170 165 Q195 155 210 175 Q215 200 195 215 Q175 218 165 200 Q160 180 170 165 Z"/>
+          <circle cx="90" cy="150" r="8"/><circle cx="80" cy="165" r="6"/><circle cx="225" cy="185" r="7"/>
+        </g>
+        <!-- Waypoints -->
+        <g class="pulse-anim">
+          <circle cx="120" cy="80" r="10" fill="#CE1126"/><circle cx="120" cy="80" r="4" fill="#fff"/>
+        </g>
+        <g class="pulse-anim" style="animation-delay:.5s">
+          <circle cx="155" cy="130" r="10" fill="#FCD116" stroke="#0A1F44" stroke-width="2"/><circle cx="155" cy="130" r="4" fill="#0A1F44"/>
+        </g>
+        <g class="pulse-anim" style="animation-delay:1s">
+          <circle cx="190" cy="190" r="10" fill="#CE1126"/><circle cx="190" cy="190" r="4" fill="#fff"/>
+        </g>
+        <!-- Path -->
+        <path d="M120 80 Q140 100 155 130 Q175 160 190 190" stroke="#0038A8" stroke-width="3" stroke-dasharray="6 5" fill="none"/>
+        <!-- Sun -->
+        <circle cx="260" cy="50" r="20" fill="#FCD116" class="sun-spin" style="transform-origin:260px 50px"/>
+      </svg>
+    </div>
+
+    <!-- Guides List -->
+    <div class="grid md:grid-cols-2 gap-5">
+      <div class="card p-7 reveal flex gap-5 hover:border-[var(--ph-yellow)]">
+        <div class="w-14 h-14 rounded-2xl flex-shrink-0 flex items-center justify-center font-extrabold text-xl" style="background:linear-gradient(135deg,var(--ph-blue),#0B4ED1);color:#fff">01</div>
+        <div>
+          <h3 class="font-bold text-lg mb-2" style="color:var(--ph-dark)">Share Wi-Fi Without Saying the Password</h3>
+          <p class="text-sm" style="color:var(--ph-muted);line-height:1.7">Generate a QR code for your sari-sari store, café, or home so guests can scan and connect instantly.</p>
+          <div class="mt-3"><span class="tag" style="background:rgba(0,56,168,.1);color:var(--ph-blue)">QR Tool · 2 min read</span></div>
+        </div>
+      </div>
+      <div class="card p-7 reveal flex gap-5 hover:border-[var(--ph-yellow)]">
+        <div class="w-14 h-14 rounded-2xl flex-shrink-0 flex items-center justify-center font-extrabold text-xl" style="background:linear-gradient(135deg,var(--ph-red),#E01A31);color:#fff">02</div>
+        <div>
+          <h3 class="font-bold text-lg mb-2" style="color:var(--ph-dark)">Create a Strong Password You Can Remember</h3>
+          <p class="text-sm" style="color:var(--ph-muted);line-height:1.7">A 3-step Filipino-friendly method for high-entropy passwords for GCash, Maya, and banking apps.</p>
+          <div class="mt-3"><span class="tag" style="background:rgba(206,17,38,.1);color:var(--ph-red)">Password Tool · 3 min read</span></div>
+        </div>
+      </div>
+      <div class="card p-7 reveal flex gap-5 hover:border-[var(--ph-yellow)]">
+        <div class="w-14 h-14 rounded-2xl flex-shrink-0 flex items-center justify-center font-extrabold text-xl" style="background:linear-gradient(135deg,var(--ph-yellow),#F59E0B);color:var(--ph-dark)">03</div>
+        <div>
+          <h3 class="font-bold text-lg mb-2" style="color:var(--ph-dark)">Shrink Photos for Messenger/Email Without Ruining Quality</h3>
+          <p class="text-sm" style="color:var(--ph-muted);line-height:1.7">The sweet spot that cuts file size by 70% — perfect for sending resume photos and school requirements.</p>
+          <div class="mt-3"><span class="tag" style="background:rgba(252,209,22,.3);color:var(--ph-dark)">Image Tool · 2 min read</span></div>
+        </div>
+      </div>
+      <div class="card p-7 reveal flex gap-5 hover:border-[var(--ph-yellow)]">
+        <div class="w-14 h-14 rounded-2xl flex-shrink-0 flex items-center justify-center font-extrabold text-xl" style="background:linear-gradient(135deg,var(--ph-blue),#0B4ED1);color:#fff">04</div>
+        <div>
+          <h3 class="font-bold text-lg mb-2" style="color:var(--ph-dark)">Build a Philippine Resume in 10 Minutes</h3>
+          <p class="text-sm" style="color:var(--ph-muted);line-height:1.7">Format that passes POEA, BPO, and local recruiter scans — with sample Filipino work experience bullets.</p>
+          <div class="mt-3"><span class="tag" style="background:rgba(0,56,168,.1);color:var(--ph-blue)">Resume Tool · 5 min read</span></div>
+        </div>
+      </div>
+      <div class="card p-7 reveal flex gap-5 hover:border-[var(--ph-yellow)]">
+        <div class="w-14 h-14 rounded-2xl flex-shrink-0 flex items-center justify-center font-extrabold text-xl" style="background:linear-gradient(135deg,var(--ph-red),#E01A31);color:#fff">05</div>
+        <div>
+          <h3 class="font-bold text-lg mb-2" style="color:var(--ph-dark)">Compute Your 13th Month Pay Correctly</h3>
+          <p class="text-sm" style="color:var(--ph-muted);line-height:1.7">Use the percentage calculator to verify your 13th month, pro-rated pay, and SSS/PhilHealth deductions.</p>
+          <div class="mt-3"><span class="tag" style="background:rgba(206,17,38,.1);color:var(--ph-red)">% Calculator · 4 min read</span></div>
+        </div>
+      </div>
+      <div class="card p-7 reveal flex gap-5 hover:border-[var(--ph-yellow)]">
+        <div class="w-14 h-14 rounded-2xl flex-shrink-0 flex items-center justify-center font-extrabold text-xl" style="background:linear-gradient(135deg,var(--ph-yellow),#F59E0B);color:var(--ph-dark)">06</div>
+        <div>
+          <h3 class="font-bold text-lg mb-2" style="color:var(--ph-dark)">Use AI to Write School Assignments Ethically</h3>
+          <p class="text-sm" style="color:var(--ph-muted);line-height:1.7">Rules for Filipino students: when to use AI, how to avoid plagiarism, and proper disclosure to teachers.</p>
+          <div class="mt-3"><span class="tag" style="background:rgba(252,209,22,.3);color:var(--ph-dark)">AI Guide · 6 min read</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 5. ABOUT PAGE -->
+<!-- ============================================================= -->
+<section id="about" class="py-24 px-6 ph-border-t" style="background:linear-gradient(180deg,#EFF6FF 0%,#FFF 40%)">
+  <div class="max-w-7xl mx-auto">
+    <!-- ABOUT HERO ILLUSTRATION: Community with PH Sun -->
+    <div class="hero-banner reveal" style="background:linear-gradient(135deg,var(--ph-blue) 0%,#0B4ED1 100%);color:#fff">
+      <div class="flex-1">
+        <div class="eyebrow reveal mb-3" style="color:var(--ph-yellow)">THE BUHAI APPROACH</div>
+        <h2 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 reveal">Useful first. <span style="color:var(--ph-yellow)">Always.</span></h2>
+        <p class="text-lg reveal max-w-2xl" style="color:rgba(255,255,255,.92);line-height:1.7">
+          We build tools that respect your time and privacy, then pair them with genuinely helpful, human-reviewed guidance — made with ❤️ in the Philippines.
+        </p>
+      </div>
+      <!-- ABOUT ILLUSTRATION -->
+      <svg viewBox="0 0 320 280" aria-label="Filipino community illustration">
+        <!-- Sun behind -->
+        <circle cx="160" cy="120" r="70" fill="#FCD116" opacity=".95" class="sun-spin" style="transform-origin:160px 120px"/>
+        <!-- People silhouettes -->
+        <g>
+          <!-- Person 1 -->
+          <circle cx="90" cy="180" r="18" fill="#FEF3C7"/>
+          <path d="M60 260 Q60 220 90 220 Q120 220 120 260 Z" fill="#CE1126"/>
+          <!-- Person 2 -->
+          <circle cx="160" cy="175" r="20" fill="#FDE68A"/>
+          <path d="M125 260 Q125 215 160 215 Q195 215 195 260 Z" fill="#0038A8"/>
+          <!-- Person 3 -->
+          <circle cx="230" cy="180" r="18" fill="#FEF3C7"/>
+          <path d="M200 260 Q200 220 230 220 Q260 220 260 260 Z" fill="#CE1126"/>
+        </g>
+        <!-- Stars -->
+        <polygon points="30,40 33,50 43,50 35,57 38,67 30,61 22,67 25,57 17,50 27,50" fill="#FCD116"/>
+        <polygon points="290,40 293,50 303,50 295,57 298,67 290,61 282,67 285,57 277,50 287,50" fill="#FCD116"/>
+      </svg>
+    </div>
+
+    <!-- Mission + Values -->
+    <div class="grid md:grid-cols-3 gap-5 mb-16">
+      <div class="card p-7 reveal text-center">
+        <div class="text-5xl mb-4">⚡</div>
+        <h4 class="font-bold text-xl mb-3" style="color:var(--ph-dark)">Blazing Fast</h4>
+        <p class="text-sm" style="color:var(--ph-muted);line-height:1.7">No server round-trips. Every tool runs instantly on your phone or laptop — even with slow internet.</p>
+      </div>
+      <div class="card p-7 reveal text-center">
+        <div class="text-5xl mb-4">🔒</div>
+        <h4 class="font-bold text-xl mb-3" style="color:var(--ph-dark)">Private by Design</h4>
+        <p class="text-sm" style="color:var(--ph-muted);line-height:1.7">Your data never leaves your browser. No tracking, no analytics, no selling your info — ever.</p>
+      </div>
+      <div class="card p-7 reveal text-center">
+        <div class="text-5xl mb-4">💛</div>
+        <h4 class="font-bold text-xl mb-3" style="color:var(--ph-dark)">Free, Forever</h4>
+        <p class="text-sm" style="color:var(--ph-muted);line-height:1.7">Every tool, every guide. No paywalls, no credit card, no "pro version" traps for basic features.</p>
+      </div>
+    </div>
+
+    <!-- Story -->
+    <div class="card p-10 reveal max-w-4xl mx-auto text-center" style="background:linear-gradient(135deg,#FEF2F2,#EFF6FF)">
+      <div class="eyebrow mb-4">OUR STORY</div>
+      <p class="text-lg md:text-xl" style="color:var(--ph-dark);line-height:1.8">
+        BuhAI started in 2025 as a small collection of tools built to help Filipino family members with everyday online tasks —
+        from compressing photos for TNT/Smart data limits to generating QR codes for neighborhood sari-sari stores.
+        Today it's grown into a full platform used by students, OFWs, small business owners, and office workers
+        across the archipelago — still run by a tiny team that believes good tech should be <strong style="color:var(--ph-red)">simple, honest, and accessible to everyone</strong>.
+      </p>
+      <div class="mt-6 flex flex-wrap justify-center gap-3">
+        <span class="tag" style="background:var(--ph-blue);color:#fff">🇵🇭 Made in Manila</span>
+        <span class="tag" style="background:var(--ph-red);color:#fff">🌱 Independent</span>
+        <span class="tag" style="background:var(--ph-yellow);color:var(--ph-dark)">🤝 Community-first</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 6. CONTACT PAGE -->
+<!-- ============================================================= -->
+<section id="contact" class="py-24 px-6 ph-border-t" style="background:#fff">
+  <div class="max-w-7xl mx-auto">
+    <!-- CONTACT HERO ILLUSTRATION: Envelope with PH Seal -->
+    <div class="hero-banner reveal" style="background:linear-gradient(135deg,#FEF2F2 0%,#FFF 100%);border:1.5px solid rgba(206,17,38,.2)">
+      <div class="flex-1">
+        <div class="eyebrow reveal mb-3">GET IN TOUCH</div>
+        <h2 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 reveal">We'd love to <span style="color:var(--ph-red)">hear from you.</span></h2>
+        <p class="text-lg reveal max-w-2xl" style="color:var(--ph-muted);line-height:1.7">
+          Found a bug? Have a tool request? Want to partner for a Filipino community project? Send us a message — we reply to every email.
+        </p>
+      </div>
+      <!-- CONTACT ILLUSTRATION -->
+      <svg viewBox="0 0 320 260" aria-label="Contact illustration">
+        <!-- Envelope -->
+        <rect x="40" y="80" width="240" height="150" rx="14" fill="#0038A8"/>
+        <path d="M40 80 L160 175 L280 80" stroke="#FCD116" stroke-width="4" fill="none"/>
+        <path d="M40 230 L160 140 L280 230" stroke="rgba(255,255,255,.2)" stroke-width="2" fill="none"/>
+        <!-- PH Seal -->
+        <circle cx="160" cy="155" r="30" fill="#FCD116" stroke="#CE1126" stroke-width="3"/>
+        <circle cx="160" cy="155" r="14" fill="#CE1126"/>
+        <polygon points="160,128 163,148 160,144 157,148" fill="#FCD116"/>
+        <!-- Floating icons -->
+        <g class="float-anim">
+          <rect x="10" y="30" width="55" height="40" rx="10" fill="#fff" stroke="#CE1126" stroke-width="2"/>
+          <path d="M20 45 L37 55 L55 40" stroke="#CE1126" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+        <g class="float-anim" style="animation-delay:.7s">
+          <circle cx="285" cy="50" r="22" fill="#fff" stroke="#0038A8" stroke-width="2"/>
+          <path d="M278 45 L278 55 L288 55" stroke="#0038A8" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <circle cx="282" cy="42" r="2" fill="#0038A8"/>
+        </g>
+      </svg>
+    </div>
+
+    <div class="grid md:grid-cols-5 gap-6">
+      <!-- Form -->
+      <div class="card p-8 md:col-span-3 reveal">
+        <h3 class="font-bold text-2xl mb-6" style="color:var(--ph-dark)">Send us a message</h3>
+        <form onsubmit="event.preventDefault();toast('Salamat! Your message has been sent 🇵🇭')" class="space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <label><div class="text-xs font-bold mb-2 uppercase tracking-wider" style="color:var(--ph-muted)">Your name</div><input required placeholder="Juan Dela Cruz"></label>
+            <label><div class="text-xs font-bold mb-2 uppercase tracking-wider" style="color:var(--ph-muted)">Email</div><input required type="email" placeholder="juan@email.com"></label>
+          </div>
+          <label><div class="text-xs font-bold mb-2 uppercase tracking-wider" style="color:var(--ph-muted)">Subject</div>
+            <select>
+              <option>General feedback</option>
+              <option>Tool request</option>
+              <option>Bug report</option>
+              <option>Partnership / Collaboration</option>
+              <option>Press inquiry</option>
+            </select>
+          </label>
+          <label><div class="text-xs font-bold mb-2 uppercase tracking-wider" style="color:var(--ph-muted)">Message</div>
+            <textarea rows="5" required placeholder="Kumusta! Tell us what's on your mind…"></textarea>
+          </label>
+          <button type="submit" class="btn-accent w-full py-3.5 rounded-xl font-bold">Send Message →</button>
+        </form>
+      </div>
+      <!-- Contact Info -->
+      <div class="md:col-span-2 space-y-4">
+        <div class="card p-6 reveal">
+          <div class="w-11 h-11 rounded-xl mb-4 flex items-center justify-center" style="background:rgba(0,56,168,.1);color:var(--ph-blue)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg>
+          </div>
+          <h4 class="font-bold mb-1" style="color:var(--ph-dark)">Email</h4>
+          <p class="text-sm" style="color:var(--ph-muted)">hello@buhai.vercel.app</p>
+          <p class="text-xs mt-1" style="color:var(--ph-muted)">We reply within 24–48 hours</p>
+        </div>
+        <div class="card p-6 reveal">
+          <div class="w-11 h-11 rounded-xl mb-4 flex items-center justify-center" style="background:rgba(206,17,38,.1);color:var(--ph-red)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <h4 class="font-bold mb-1" style="color:var(--ph-dark)">Based in</h4>
+          <p class="text-sm" style="color:var(--ph-muted)">Metro Manila, Philippines 🇵🇭</p>
+          <p class="text-xs mt-1" style="color:var(--ph-muted)">Serving users nationwide & worldwide</p>
+        </div>
+        <div class="card p-6 reveal">
+          <div class="w-11 h-11 rounded-xl mb-4 flex items-center justify-center" style="background:rgba(252,209,22,.4);color:var(--ph-dark)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+          </div>
+          <h4 class="font-bold mb-2" style="color:var(--ph-dark)">Follow BuhAI</h4>
+          <div class="flex gap-2">
+            <a href="#" class="btn-ghost w-10 h-10 rounded-lg flex items-center justify-center">f</a>
+            <a href="#" class="btn-ghost w-10 h-10 rounded-lg flex items-center justify-center">X</a>
+            <a href="#" class="btn-ghost w-10 h-10 rounded-lg flex items-center justify-center">in</a>
+            <a href="#" class="btn-ghost w-10 h-10 rounded-lg flex items-center justify-center">▶</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 7. PRIVACY PAGE -->
+<!-- ============================================================= -->
+<section id="privacy" class="py-24 px-6 ph-border-t" style="background:linear-gradient(180deg,#F8FAFC 0%,#FFF 40%)">
+  <div class="max-w-7xl mx-auto">
+    <!-- PRIVACY HERO ILLUSTRATION: Shield with PH Sun -->
+    <div class="hero-banner reveal" style="background:linear-gradient(135deg,#0A1F44 0%,var(--ph-blue) 100%);color:#fff">
+      <div class="flex-1">
+        <div class="eyebrow reveal mb-3" style="color:var(--ph-yellow)">YOUR RIGHTS · PRIVACY POLICY</div>
+        <h2 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 reveal">Your privacy is <span style="color:var(--ph-yellow)">non-negotiable.</span></h2>
+        <p class="text-lg reveal max-w-2xl" style="color:rgba(255,255,255,.9);line-height:1.7">
+          BuhAI was built on one simple promise: what you do on our site stays on your device. No exceptions.
+        </p>
+      </div>
+      <!-- PRIVACY ILLUSTRATION -->
+      <svg viewBox="0 0 300 280" aria-label="Privacy shield illustration">
+        <!-- Shield -->
+        <path d="M150 30 L250 65 L250 150 Q250 220 150 260 Q50 220 50 150 L50 65 Z" fill="#FCD116" stroke="#CE1126" stroke-width="4"/>
+        <!-- PH Sun inside -->
+        <g class="sun-spin" style="transform-origin:150px 145px">
+          <circle cx="150" cy="145" r="38" fill="#CE1126"/>
+          <g fill="#0038A8">
+            <polygon points="150,85 154,118 150,110 146,118"/>
+            <polygon points="210,145 177,149 185,145 177,141"/>
+            <polygon points="150,205 146,172 150,180 154,172"/>
+            <polygon points="90,145 123,141 115,145 123,149"/>
+          </g>
+        </g>
+        <!-- Lock -->
+        <rect x="132" y="175" width="36" height="28" rx="4" fill="#fff"/>
+        <path d="M138 175 V160 a12 12 0 0124 0 V175" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <circle cx="150" cy="190" r="3" fill="#0A1F44"/>
+      </svg>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-6 mb-12">
+      <div class="card p-6 reveal text-center" style="border-top:4px solid var(--ph-red)">
+        <div class="text-4xl mb-3">🚫</div>
+        <h4 class="font-bold mb-2" style="color:var(--ph-dark)">No Tracking</h4>
+        <p class="text-sm" style="color:var(--ph-muted)">No Google Analytics, no Meta pixels, no cookies that spy on you.</p>
+      </div>
+      <div class="card p-6 reveal text-center" style="border-top:4px solid var(--ph-blue)">
+        <div class="text-4xl mb-3">💻</div>
+        <h4 class="font-bold mb-2" style="color:var(--ph-dark)">Local Processing</h4>
+        <p class="text-sm" style="color:var(--ph-muted)">All 8 tools run in your browser. Your files/inputs never touch our servers.</p>
+      </div>
+      <div class="card p-6 reveal text-center" style="border-top:4px solid var(--ph-yellow)">
+        <div class="text-4xl mb-3">📭</div>
+        <h4 class="font-bold mb-2" style="color:var(--ph-dark)">No Spam Ever</h4>
+        <p class="text-sm" style="color:var(--ph-muted)">We don't have a mailing list and will never send you unsolicited email.</p>
+      </div>
+    </div>
+
+    <!-- Full Privacy Text -->
+    <div class="card p-10 reveal max-w-4xl mx-auto" style="color:var(--ph-dark);line-height:1.8">
+      <h3 class="font-bold text-2xl mb-5" style="color:var(--ph-blue)">Full Privacy Policy</h3>
+      <p class="mb-4"><strong>Last updated:</strong> August 2026 · Compliant with Philippine Data Privacy Act (RA 10173)</p>
+      <h4 class="font-bold text-lg mt-6 mb-2" style="color:var(--ph-red)">1. Information we collect</h4>
+      <p class="mb-4">Almost none. Our web server may store standard access logs (IP address, browser type, time of visit) for up to 7 days solely to prevent abuse. We do not link these logs to individual users, and we never sell or share them.</p>
+      <h4 class="font-bold text-lg mt-6 mb-2" style="color:var(--ph-red)">2. How our tools work</h4>
+      <p class="mb-4">Every tool on BuhAI — QR generator, password maker, image compressor, resume builder, etc. — runs entirely inside <em>your own browser</em> using JavaScript. When you generate a password or compress a photo, that data never travels over the internet. It is processed on your device and discarded when you close the page.</p>
+      <h4 class="font-bold text-lg mt-6 mb-2" style="color:var(--ph-red)">3. Cookies & local storage</h4>
+      <p class="mb-4">We use zero tracking cookies. We may store your tool preferences (e.g. preferred units in the BMI calculator) only if you explicitly save them — and you can clear this anytime in your browser settings.</p>
+      <h4 class="font-bold text-lg mt-6 mb-2" style="color:var(--ph-red)">4. Third parties</h4>
+      <p class="mb-4">Our site is hosted on Vercel. Their privacy policy applies to infrastructure hosting only. We embed no ads, no ad networks, and no third-party tracking scripts of any kind.</p>
+      <h4 class="font-bold text-lg mt-6 mb-2" style="color:var(--ph-red)">5. Your rights (RA 10173)</h4>
+      <p>As a Filipino user, you have the right to access, correct, and erase any personal data we may hold. Since we hold almost none, most requests can be answered in one sentence — write to us at <strong>privacy@buhai.vercel.app</strong> and we'll respond within 5 working days.</p>
+      <div class="mt-8 pt-6 border-t" style="border-color:var(--border)">
+        <p class="text-sm italic" style="color:var(--ph-muted)">This policy is intentionally written in plain English. If anything is unclear, please ask — privacy policies should be read, not ignored.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- FOOTER -->
+<!-- ============================================================= -->
+<footer class="relative py-16 px-6" style="background:linear-gradient(180deg,var(--ph-dark) 0%,#050E26 100%);color:#fff">
+  <div class="max-w-7xl mx-auto">
+    <!-- Flag stripe -->
+    <div style="height:5px;border-radius:3px;background:linear-gradient(90deg,var(--ph-blue) 33%,var(--ph-yellow) 33%,var(--ph-yellow) 66%,var(--ph-red) 66%);margin-bottom:48px"></div>
+
+    <div class="grid md:grid-cols-5 gap-10 mb-12">
+      <div class="md:col-span-2">
+        <div class="flex items-center gap-2.5 mb-4">
+          <div style="width:40px;height:40px;border-radius:10px;position:relative;overflow:hidden">
+            <div style="position:absolute;inset:0;background:linear-gradient(180deg,var(--ph-blue) 50%,var(--ph-red) 50%)"></div>
+            <svg viewBox="0 0 40 40" style="position:absolute;inset:0;width:100%;height:100%"><circle cx="20" cy="20" r="6" fill="#FCD116"/></svg>
+          </div>
+          <span style="font-weight:800;letter-spacing:-.01em;font-size:20px">Buh<span style="color:var(--ph-yellow)">AI</span></span>
+        </div>
+        <p class="text-sm mb-5 max-w-sm" style="color:rgba(255,255,255,.7);line-height:1.7">Everyday tools, made simpler. Free · Fast · Privacy-conscious · Made with love in the Philippines 🇵🇭</p>
+        <div class="flex gap-2">
+          <span class="tag" style="background:rgba(252,209,22,.2);color:var(--ph-yellow)">FREE</span>
+          <span class="tag" style="background:rgba(255,255,255,.1);color:#fff">NO SIGNUP</span>
+          <span class="tag" style="background:rgba(206,17,38,.25);color:#fff">100% LOCAL</span>
+        </div>
+      </div>
+      <div>
+        <h5 class="text-xs uppercase tracking-widest mb-4 font-bold" style="color:var(--ph-yellow)">Product</h5>
+        <ul class="space-y-2.5 text-sm" style="color:rgba(255,255,255,.8)">
+          <li><a href="#tools" class="hover:text-[var(--ph-yellow)] transition">All Tools</a></li>
+          <li><a href="#ai" class="hover:text-[var(--ph-yellow)] transition">AI Resources</a></li>
+          <li><a href="#guides" class="hover:text-[var(--ph-yellow)] transition">Guides</a></li>
+          <li><a href="#" class="hover:text-[var(--ph-yellow)] transition">Changelog</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5 class="text-xs uppercase tracking-widest mb-4 font-bold" style="color:var(--ph-yellow)">Company</h5>
+        <ul class="space-y-2.5 text-sm" style="color:rgba(255,255,255,.8)">
+          <li><a href="#about" class="hover:text-[var(--ph-yellow)] transition">About Us</a></li>
+          <li><a href="#contact" class="hover:text-[var(--ph-yellow)] transition">Contact</a></li>
+          <li><a href="#privacy" class="hover:text-[var(--ph-yellow)] transition">Privacy Policy</a></li>
+          <li><a href="#" class="hover:text-[var(--ph-yellow)] transition">Terms of Use</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5 class="text-xs uppercase tracking-widest mb-4 font-bold" style="color:var(--ph-yellow)">Support BuhAI</h5>
+        <p class="text-sm mb-4" style="color:rgba(255,255,255,.7)">We'll never put tools behind a paywall. If we helped you, tell a friend!</p>
+        <a href="#contact" class="btn-yellow px-5 py-2.5 rounded-xl text-sm inline-flex items-center gap-2">Share Feedback 💛</a>
+      </div>
+    </div>
+
+    <div class="pt-6 flex flex-wrap items-center justify-between gap-3 text-xs" style="color:rgba(255,255,255,.5);border-top:1px solid rgba(255,255,255,.1)">
+      <div>© 2026 BuhAI · Lahat ng karapatan ay nakalaan</div>
+      <div>Made for Filipinos, everywhere. Mabuhay! 🇵🇭</div>
+    </div>
+  </div>
+</footer>
+
+<!-- ============================================================= -->
+<!-- TOOL MODAL SYSTEM + ALL 8 FULLY FUNCTIONAL TOOLS -->
+<!-- ============================================================= -->
+<div id="modalBackdrop" class="modal-backdrop" onclick="if(event.target===this)closeTool()">
+  <div class="modal flex flex-col">
+    <div class="flex items-center justify-between p-6 border-b" style="border-color:var(--border);background:linear-gradient(90deg,rgba(0,56,168,.05),rgba(206,17,38,.04))">
+      <div class="flex items-center gap-3">
+        <div id="toolModalIcon" class="w-11 h-11 rounded-xl flex items-center justify-center" style="background:rgba(0,56,168,.08);color:var(--ph-blue)"></div>
+        <h3 id="toolModalTitle" class="font-extrabold text-xl" style="color:var(--ph-dark)"></h3>
+      </div>
+      <button onclick="closeTool()" class="btn-ghost w-10 h-10 rounded-xl flex items-center justify-center" title="Close (ESC)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div id="toolModalBody" class="p-6 overflow-y-auto"></div>
+  </div>
+</div>
+<div id="resumePrint" style="display:none"></div>
+
+<script>
+/* ========== TOOL DEFINITIONS ========== */
+const tools = {
+  qr:{title:'QR Code Generator',icon:`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v3M14 20h3M20 20h1"/></svg>`,render:renderQR},
+  age:{title:'Age Calculator',icon:`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>`,bg:'rgba(206,17,38,.08)',color:'var(--ph-red)',render:renderAge},
+  pwd:{title:'Password Generator',icon:`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>`,render:renderPwd},
+  img:{title:'Image Compressor',icon:`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>`,bg:'rgba(206,17,38,.08)',color:'var(--ph-red)',render:renderImg},
+  bmi:{title:'BMI Calculator',icon:`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M6 6h12M7 18h10M9 10l3-3 3 3M9 14l3 3 3-3"/></svg>`,render:renderBMI},
+  resume:{title:'Resume Builder',icon:`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>`,bg:'rgba(206,17,38,.08)',color:'var(--ph-red)',render:renderResume},
+  word:{title:'Word Counter',icon:`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h10M4 18h16"/></svg>`,render:renderWord},
+  pct:{title:'Percentage Calculator',icon:`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 5L5 19M7.5 7.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM16.5 19.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/></svg>`,bg:'rgba(206,17,38,.08)',color:'var(--ph-red)',render:renderPct}
+};
+function openTool(k){
+  const t=tools[k];
+  document.getElementById('toolModalTitle').textContent=t.title;
+  const ic=document.getElementById('toolModalIcon');
+  ic.innerHTML=t.icon;ic.style.background=t.bg||'rgba(0,56,168,.08)';ic.style.color=t.color||'var(--ph-blue)';
+  const b=document.getElementById('toolModalBody');b.innerHTML='';t.render(b);
+  document.getElementById('modalBackdrop').classList.add('active');
+  document.body.style.overflow='hidden';
+}
+function closeTool(){
+  document.getElementById('modalBackdrop').classList.remove('active');
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeTool()});
+function toast(msg){
+  const el=document.createElement('div');el.textContent=msg;
+  Object.assign(el.style,{position:'fixed',bottom:'28px',left:'50%',transform:'translateX(-50%)',background:'var(--ph-dark)',color:'#fff',padding:'12px 22px',borderRadius:'14px',zIndex:'999',fontSize:'14px',fontWeight:'600',boxShadow:'0 20px 50px rgba(0,0,0,.4)',border:'2px solid var(--ph-yellow)',animation:'modalUp .3s ease'});
+  document.body.appendChild(el);
+  setTimeout(()=>{el.style.opacity='0';el.style.transition='opacity .3s';setTimeout(()=>el.remove(),300)},2000);
+}
+
+/* ===== 1. QR ===== */
+function renderQR(r){
+  r.innerHTML=`<div class="space-y-4">
+    <label><div class="text-xs font-bold mb-2 uppercase tracking-wider" style="color:var(--ph-muted)">Content type</div>
+    <select id="qrType" onchange="qrBuildFields();qrUpdate()"><option value="text">Text / URL</option><option value="email">Email</option><option value="tel">Phone</option><option value="sms">SMS</option><option value="wifi">Wi-Fi</option></select></label>
+    <div id="qrFields"></div>
+    <div class="grid grid-cols-2 gap-3">
+      <label><div class="text-xs font-bold mb-2 uppercase tracking-wider" style="color:var(--ph-muted)">Size</div>
+      <input type="range" id="qrSize" min="128" max="512" step="32" value="320" oninput="document.getElementById('qrSizeVal').textContent=this.value+'px';qrUpdate()">
+      <div class="text-xs mt-1 num" style="color:var(--ph-muted)"><span id="qrSizeVal">320px</span></div></label>
+      <label><div class="text-xs font-bold mb-2 uppercase tracking-wider" style="color:var(--ph-muted)">Margin</div>
+      <input type="range" id="qrMargin" min="0" max="8" step="1" value="2" oninput="document.getElementById('qrMarginVal').textContent=this.value;qrUpdate()">
+      <div class="text-xs mt-1 num" style="color:var(--ph-muted)"><span id="qrMarginVal">2</span></div></label>
+    </div>
+    <div class="mt-4 flex flex-col items-center gap-4 p-6 rounded-2xl" style="background:rgba(0,56,168,.04);border:1px dashed var(--border-strong)">
+      <div style="background:#fff;padding:12px;border-radius:12px;box-shadow:var(--shadow)"><canvas id="qrCanvas"></canvas></div>
+      <button onclick="qrDownload()" class="btn-primary px-6 py-3 rounded-xl text-sm font-bold">⬇ Download PNG</button>
+    </div></div>`;
+  qrBuildFields();qrUpdate();
+}
+function qrBuildFields(){
+  const t=document.getElementById('qrType').value,f=document.getElementById('qrFields');
+  const p='placeholder class="w-full"';
+  if(t==='text')f.innerHTML=`<input id="qrText" ${p}="Enter text or URL…" oninput="qrUpdate()" value="https://buhai.vercel.app">`;
+  if(t==='email')f.innerHTML=`<div class="grid gap-3"><input id="qrEmail" type="email" ${p}="recipient@email.com" oninput="qrUpdate()"><input id="qrEmailSubj" ${p}="Subject" oninput="qrUpdate()"><textarea id="qrEmailBody" rows="2" ${p}="Body" oninput="qrUpdate()"></textarea></div>`;
+  if(t==='tel')f.innerHTML=`<input id="qrTel" type="tel" ${p}="+63 917 123 4567" oninput="qrUpdate()">`;
+  if(t==='sms')f.innerHTML=`<div class="grid gap-3"><input id="qrSmsNum" type="tel" ${p}="Phone number" oninput="qrUpdate()"><textarea id="qrSmsMsg" rows="2" ${p}="Message" oninput="qrUpdate()"></textarea></div>`;
+  if(t==='wifi')f.innerHTML=`<div class="grid grid-cols-2 gap-3"><input id="qrWifiSsid" ${p}="Network name (SSID)" oninput="qrUpdate()"><input id="qrWifiPass" ${p}="Password" oninput="qrUpdate()"><select id="qrWifiEnc" onchange="qrUpdate()"><option value="WPA">WPA/WPA2</option><option value="WEP">WEP</option><option value="nopass">No password</option></select><label class="flex items-center gap-2 text-sm pt-3"><input type="checkbox" id="qrWifiHidden" class="checkbox" onchange="qrUpdate()"><span style="color:var(--ph-muted)">Hidden network</span></label></div>`;
+}
+function qrPayload(){
+  const t=document.getElementById('qrType').value,v=id=>(document.getElementById(id)?.value||'').trim();
+  if(t==='text')return v('qrText')||' ';
+  if(t==='email')return`mailto:${v('qrEmail')}?subject=${encodeURIComponent(v('qrEmailSubj'))}&body=${encodeURIComponent(v('qrEmailBody'))}`;
+  if(t==='tel')return`tel:${v('qrTel')}`;
+  if(t==='sms')return`SMSTO:${v('qrSmsNum')}:${v('qrSmsMsg')}`;
+  if(t==='wifi')return`WIFI:T:${v('qrWifiEnc')};S:${v('qrWifiSsid')};P:${v('qrWifiEnc')==='nopass'?'':v('qrWifiPass')};${document.getElementById('qrWifiHidden').checked?'H:true;':''};`;
+}
+function qrUpdate(){
+  if(document.getElementById('qrType')&&!document.getElementById('qrText')&&!document.getElementById('qrEmail'))qrBuildFields();
+  try{QRCode.toCanvas(document.getElementById('qrCanvas'),qrPayload(),{width:+document.getElementById('qrSize').value,margin:+document.getElementById('qrMargin').value,errorCorrectionLevel:'M',color:{dark:'#0A1F44',light:'#ffffff'}})}catch(e){}
+}
+function qrDownload(){
+  const a=document.createElement('a');a.download='buhai-qrcode.png';a.href=document.getElementById('qrCanvas').toDataURL('image/png');a.click();toast('QR code downloaded ✓');
+}
+
+/* ===== 2. AGE ===== */
+function renderAge(r){
+  const today=new Date().toISOString().slice(0,10);
+  r.innerHTML=`<div class="space-y-5">
+    <label><div class="text-xs font-bold mb-2 uppercase tracking-wider" style="color:var(--ph-muted)">Date of birth</div>
+    <input type="date" id="ageDob" max="${today}" value="1998-06-12" onchange="ageCalc()"></label>
+    <div id="ageOut"></div></div>`;
+  ageCalc();
+}
+function ageCalc(){
+  const dob=new Date(document.getElementById('ageDob').value);if(isNaN(dob))return;
+  const now=new Date();let y=now.getFullYear()-dob.getFullYear(),m=now.getMonth()-dob.getMonth(),d=now.getDate()-dob.getDate();
+  if(d<0){m--;d+=new Date(now.getFullYear(),now.getMonth(),0).getDate()}
+  if(m<0){y--;m+=12}
+  const days=Math.floor((now-dob)/86400000),weeks=Math.floor(days/7);
+  let next=new Date(now.getFullYear(),dob.getMonth(),dob.getDate());if(next<=now)next=new Date(now.getFullYear()+1,dob.getMonth(),dob.getDate());
+  const toNext=Math.ceil((next-now)/86400000);
+  const wd=['Linggo','Lunes','Martes','Miyerkules','Huwebes','Biyernes','Sabado'][dob.getDay()];
+  document.getElementById('ageOut').innerHTML=`
+    <div class="grid grid-cols-3 gap-3">
+      <div class="card p-5 text-center" style="background:linear-gradient(135deg,#EFF6FF,#fff)"><div class="text-4xl font-extrabold num" style="color:var(--ph-blue)">${y}</div><div class="text-xs mt-1 font-bold" style="color:var(--ph-muted)">Years</div></div>
+      <div class="card p-5 text-center" style="background:linear-gradient(135deg,#FEF2F2,#fff)"><div class="text-4xl font-extrabold num" style="color:var(--ph-red)">${m}</div><div class="text-xs mt-1 font-bold" style="color:var(--ph-muted)">Months</div></div>
+      <div class="card p-5 text-center" style="background:linear-gradient(135deg,#FEF9C3,#fff)"><div class="text-4xl font-extrabold num" style="color:var(--ph-dark)">${d}</div><div class="text-xs mt-1 font-bold" style="color:var(--ph-muted)">Days</div></div>
+    </div>
+    <div class="grid grid-cols-2 gap-3 mt-3">
+      <div class="card p-4"><div class="text-xs font-bold" style="color:var(--ph-muted)">Total days lived</div><div class="font-extrabold num">${days.toLocaleString()}</div></div>
+      <div class="card p-4"><div class="text-xs font-bold" style="color:var(--ph-muted)">Total weeks</div><div class="font-extrabold num">${weeks.toLocaleString()}</div></div>
+      <div class="card p-4"><div class="text-xs font-bold" style="color:var(--ph-muted)">Ipinanganak noong</div><div class="font-extrabold">${wd}</div></div>
+      <div class="card p-4"><div class="text-xs font-bold" style="color:var(--ph-muted)">Next birthday</div><div class="font-extrabold" style="color:var(--ph-red)">${toNext} araw 🎂</div></div>
+    </div>`;
+}
+
+/* ===== 3. PASSWORD ===== */
+function renderPwd(r){
+  r.innerHTML=`<div class="space-y-5">
+    <div class="card p-5 relative" style="background:linear-gradient(135deg,#0A1F44,var(--ph-blue));color:#fff">
+      <div id="pwdOut" class="font-mono text-xl md:text-2xl font-bold break-all pr-12 min-h-[2rem]" style="letter-spacing:.02em;color:var(--ph-yellow)"></div>
+      <button onclick="copyPwd()" class="absolute top-4 right-4 w-10 h-10 rounded-lg flex items-center justify-center" style="background:rgba(255,255,255,.15);color:#fff" title="Copy">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+      </button>
+    </div>
+    <div><div class="flex items-center justify-between mb-2"><span class="text-xs font-bold uppercase tracking-wider" style="color:var(--ph-muted)">Length</span><span class="font-extrabold num" id="pwdLenVal">20</span></div>
+    <input type="range" id="pwdLen" min="8" max="64" value="20" oninput="document.getElementById('pwdLenVal').textContent=this.value;genPwd()"></div>
+    <div class="grid grid-cols-2 gap-3">
+      <label class="flex items-center gap-3 card p-4 cursor-pointer"><input type="checkbox" id="pwdUpper" class="checkbox" checked onchange="genPwd()"><span class="text-sm font-semibold">A-Z</span></label>
+      <label class="flex items-center gap-3 card p-4 cursor-pointer"><input type="checkbox" id="pwdLower" class="checkbox" checked onchange="genPwd()"><span class="text-sm font-semibold">a-z</span></label>
+      <label class="flex items-center gap-3 card p-4 cursor-pointer"><input type="checkbox" id="pwdNum" class="checkbox" checked onchange="genPwd()"><span class="text-sm font-semibold">0-9</span></label>
+      <label class="flex items-center gap-3 card p-4 cursor-pointer"><input type="checkbox" id="pwdSym" class="checkbox" checked onchange="genPwd()"><span class="text-sm font-semibold">!@#$</span></label>
+    </div>
+    <div id="pwdStrength" class="rounded-xl p-4"></div>
+    <button onclick="genPwd()" class="btn-accent w-full py-3.5 rounded-xl font-bold inline-flex items-center justify-center gap-2">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 11-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>
+      Generate New Password
+    </button></div>`;
+  genPwd();
+}
+function genPwd(){
+  const len=+document.getElementById('pwdLen').value,sets=[];
+  if(document.getElementById('pwdUpper').checked)sets.push('ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+  if(document.getElementById('pwdLower').checked)sets.push('abcdefghijklmnopqrstuvwxyz');
+  if(document.getElementById('pwdNum').checked)sets.push('0123456789');
+  if(document.getElementById('pwdSym').checked)sets.push('!@#$%^&*()-_=+[]{};:,.<>?');
+  if(sets.length===0){document.getElementById('pwdOut').textContent='Select at least one option';return}
+  const all=sets.join('');let pwd=sets.map(s=>s[Math.floor(Math.random()*s.length)]).join('');
+  const arr=new Uint32Array(len);crypto.getRandomValues(arr);
+  for(let i=pwd.length;i<len;i++)pwd+=all[arr[i]%all.length];
+  pwd=pwd.split('').sort(()=>Math.random()-0.5).join('');
+  document.getElementById('pwdOut').textContent=pwd;
+  const score=Math.min(4,Math.floor(len/8+sets.length-1));
+  const lb=['Mahina','Katamtaman','Mabuti','Matibay','Napakatibay'],cl=['#f87171','#fb923c','#fbbf24','#34d399','#0038A8'];
+  document.getElementById('pwdStrength').innerHTML=`<div class="flex items-center justify-between mb-2"><span class="text-xs font-bold uppercase tracking-wider" style="color:var(--ph-muted)">Strength</span><span class="font-extrabold" style="color:${cl[score]}">${lb[score]}</span></div><div class="flex gap-1.5">${Array(4).fill(0).map((_,i)=>`<div style="flex:1;height:7px;border-radius:4px;background:${i<score?cl[score]:'rgba(0,0,0,.1)'}"></div>`).join('')}</div>`;
+}
+function copyPwd(){const t=document.getElementById('pwdOut').textContent;if(!t||t.includes(' '))return;navigator.clipboard.writeText(t).then(()=>toast('Password copied ✓'))}
+
+/* ===== 4. IMAGE ===== */
+function renderImg(r){
+  r.innerHTML=`<div class="space-y-5">
+    <label id="imgDrop" class="block border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition" style="border-color:var(--ph-blue);background:rgba(0,56,168,.03)">
+      <input type="file" id="imgFile" accept="image/jpeg,image/png,image/webp" class="hidden" onchange="imgLoad(event)">
+      <div class="mx-auto w-14 h-14 rounded-2xl mb-4 flex items-center justify-center" style="background:var(--ph-blue);color:#fff">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+      </div>
+      <div class="font-bold mb-1" style="color:var(--ph-dark)">Mag-drop ng litrato o i-click dito</div>
+      <div class="text-xs" style="color:var(--ph-muted)">JPG, PNG, WebP · Hanggang 20MB</div>
+    </label>
+    <div id="imgControls" class="hidden space-y-4">
+      <div class="grid grid-cols-2 gap-4">
+        <label><div class="text-xs font-bold mb-2 uppercase tracking-wider" style="color:var(--ph-muted)">Quality: <span id="imgQualVal">80</span>%</div>
+        <input type="range" id="imgQual" min="10" max="100" value="80" oninput="document.getElementById('imgQualVal').textContent=this.value;imgCompress()"></label>
+        <label><div class="text-xs font-bold mb-2 uppercase tracking-wider" style="color:var(--ph-muted)">Format</div>
+        <select id="imgFmt" onchange="imgCompress()"><option value="image/jpeg">JPEG</option><option value="image/webp">WebP</option><option value="image/png">PNG</option></select></label>
+      </div>
+      <label><div class="text-xs font-bold mb-2 uppercase tracking-wider" style="color:var(--ph-muted)">Max width (px, 0 = orihinal)</div>
+      <input type="number" id="imgMaxW" min="0" max="5000" value="0" onchange="imgCompress()"></label>
+      <div id="imgStats" class="grid grid-cols-3 gap-3"></div>
+      <div class="flex gap-3">
+        <button onclick="imgDownload()" class="btn-primary flex-1 py-3 rounded-xl font-bold">⬇ I-download ang compressed</button>
+        <button onclick="document.getElementById('imgFile').value='';document.getElementById('imgControls').classList.add('hidden')" class="btn-ghost px-5 py-3 rounded-xl font-bold">Reset</button>
+      </div>
+      <div id="imgPreview" class="rounded-2xl overflow-hidden" style="border:1px solid var(--border)"></div>
+    </div></div>`;
+  const d=document.getElementById('imgDrop');
+  ['dragover','dragenter'].forEach(e=>d.addEventListener(e,ev=>{ev.preventDefault();d.style.borderColor='var(--ph-red)';d.style.background='rgba(206,17,38,.06)'}));
+  ['dragleave','drop'].forEach(e=>d.addEventListener(e,ev=>{ev.preventDefault();d.style.borderColor='var(--ph-blue)';d.style.background='rgba(0,56,168,.03)'}));
+  d.addEventListener('drop',ev=>{if(ev.dataTransfer.files[0]){document.getElementById('imgFile').files=ev.dataTransfer.files;imgLoad({target:{files:ev.dataTransfer.files}})}});
+}
+let imgBlobUrl,imgResultBlob,imgOrigSize=0;
+function imgLoad(e){
+  const f=e.target.files[0];if(!f)return;imgOrigSize=f.size;
+  const rd=new FileReader();rd.onload=ev=>{const im=new Image();im.onload=()=>{window._img=im;document.getElementById('imgControls').classList.remove('hidden');imgCompress()};im.src=ev.target.result};rd.readAsDataURL(f);
+}
+function imgCompress(){
+  const img=window._img;if(!img)return;
+  const fmt=document.getElementById('imgFmt').value,q=+document.getElementById('imgQual').value/100,mw=+document.getElementById('imgMaxW').value;
+  let w=img.width,h=img.height;if(mw>0&&w>mw){h=Math.round(h*mw/w);w=mw}
+  const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');
+  if(fmt==='image/jpeg'){x.fillStyle='#fff';x.fillRect(0,0,w,h)}
+  x.drawImage(img,0,0,w,h);
+  c.toBlob(b=>{
+    if(imgBlobUrl)URL.revokeObjectURL(imgBlobUrl);
+    imgResultBlob=b;imgBlobUrl=URL.createObjectURL(b);
+    const saved=imgOrigSize-b.size,pct=imgOrigSize>0?(saved/imgOrigSize*100).toFixed(1):0;
+    document.getElementById('imgStats').innerHTML=`
+      <div class="card p-4"><div class="text-xs font-bold" style="color:var(--ph-muted)">Orihinal</div><div class="font-extrabold num">${fmtSize(imgOrigSize)}</div></div>
+      <div class="card p-4"><div class="text-xs font-bold" style="color:var(--ph-muted)">Compressed</div><div class="font-extrabold num">${fmtSize(b.size)}</div></div>
+      <div class="card p-4"><div class="text-xs font-bold" style="color:var(--ph-muted)">Nakatipid</div><div class="font-extrabold num" style="color:${saved>=0?'var(--ph-blue)':'var(--ph-red)'}">${saved>=0?'-':'+'}${Math.abs(p
